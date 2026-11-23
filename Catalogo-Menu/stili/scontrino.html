@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="it" data-root="..">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menù: stile Lo scontrino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/kit.css">
+<style>
+  /* LO SCONTRINO: il menù esce stampato riga per riga mentre scorri; con + aggiungi i piatti e il conto
+     si aggiorna dal vivo. Archivio (asse di larghezza), nero, carta bianca e rosso segnale. */
+  :root {
+    --bg: #000000; --paper: #ffffff; --ink: #0a0a0a; --muted: #555555; --red: #d92b21; --on-dark: #ffffff; --dark-muted: #c4c4c4;
+    --m: clamp(16px, 2.2vw, 32px); --gap: clamp(12px, 1.6vw, 24px);
+    --small: 0.9375rem; --body: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);
+    --lead: clamp(1.375rem, 1.1rem + 0.8vw, 2rem); --head: clamp(3rem, 1rem + 4.4vw, 6rem);
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  body { background: var(--bg); color: var(--on-dark); font: 400 var(--body)/1.45 "Archivo", system-ui, sans-serif; }
+  .tall { font-family: "Archivo", sans-serif; font-weight: 800; font-stretch: 62%; font-variation-settings: "wdth" 62; letter-spacing: -0.01em; line-height: 0.86; text-transform: uppercase; }
+
+  .page { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: start; padding: var(--m) var(--m) clamp(120px, 16svh, 200px); }
+  .side { grid-column: 1 / span 4; position: sticky; top: var(--m); display: grid; gap: 24px; padding-top: 4svh; }
+  .side h1 { font-size: var(--head); }
+  .side__line { font-size: var(--lead); line-height: 1.15; font-weight: 600; font-variation-settings: "wdth" 87; }
+  .bill { display: grid; gap: 8px; padding: 24px; background: var(--red); color: #fff; }
+  .bill__label { font-weight: 600; }
+  .bill__total { font-size: clamp(3rem, 1rem + 4.4vw, 6rem); font-variant-numeric: tabular-nums; }
+  .bill__count { font-size: var(--small); }
+  .bill button { justify-self: start; min-height: 40px; padding: 0 14px; border: 0; background: #fff; color: var(--red); font-weight: 700; cursor: pointer; transition: transform 0.2s var(--ease); }
+  .bill button:active { transform: scale(0.95); }
+  .bill button[disabled] { opacity: 0.6; cursor: default; }
+
+  .receipt { grid-column: 5 / span 4; position: relative; padding-top: 22px; }
+  .slot { position: absolute; left: -14px; right: -14px; top: 0; height: 22px; background: #2b2b2b; }
+  .paper { position: relative; background: var(--paper); color: var(--ink); padding: 36px 28px 64px; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), 95% 100%, 90% calc(100% - 14px), 85% 100%, 80% calc(100% - 14px), 75% 100%, 70% calc(100% - 14px), 65% 100%, 60% calc(100% - 14px), 55% 100%, 50% calc(100% - 14px), 45% 100%, 40% calc(100% - 14px), 35% 100%, 30% calc(100% - 14px), 25% 100%, 20% calc(100% - 14px), 15% 100%, 10% calc(100% - 14px), 5% 100%, 0 calc(100% - 14px)); }
+  .paper__head { text-align: center; display: grid; gap: 4px; padding-bottom: 28px; }
+  .paper__head p:first-child { font-size: var(--lead); font-weight: 800; font-variation-settings: "wdth" 75; text-transform: uppercase; }
+  .paper h2 { font-size: var(--lead); font-weight: 800; font-variation-settings: "wdth" 75; text-transform: uppercase; margin: 28px 0 12px; text-align: center; }
+  .line { display: grid; grid-template-columns: 1fr auto auto; column-gap: 12px; align-items: baseline; padding: 8px 0; }
+  .line h3 { font-size: var(--body); font-weight: 700; font-variation-settings: "wdth" 80; text-transform: uppercase; }
+  .line__price { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .line__desc { grid-column: 1 / -1; color: var(--muted); max-width: 40ch; line-height: 1.35; }
+  .add { width: 40px; height: 40px; border: 0; background: var(--ink); color: #fff; font-size: 22px; line-height: 1; cursor: pointer; transition: transform 0.2s var(--ease), background-color 0.2s; }
+  .add:hover { background: var(--red); }
+  .add:active { transform: scale(0.88); }
+  .qty { grid-column: 1 / -1; font-size: var(--small); font-weight: 700; color: var(--red); min-height: 0; }
+  .paper__foot { text-align: center; padding-top: 28px; font-size: var(--small); display: grid; gap: 6px; }
+  /* la stampa: ogni riga si rivela da sinistra a destra quando entra */
+  @media (prefers-reduced-motion: no-preference) {
+    .print { clip-path: inset(0 100% 0 0); transition: clip-path 0.55s steps(14, end); }
+    .print.in { clip-path: inset(0 0 0 0); }
+  }
+
+  .look { grid-column: 9 / span 4; position: sticky; top: var(--m); padding-top: 4svh; }
+  .look__pic { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #1a1a1a; }
+  .look__pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.35s; }
+  .look__pic img.on { opacity: 1; }
+  .look figcaption { margin-top: 12px; color: var(--dark-muted); font-size: var(--small); }
+  .look figcaption b { color: #fff; }
+
+  .close { padding: clamp(64px, 10svh, 120px) var(--m) var(--m); background: var(--red); color: #fff; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 28px; }
+  .close__name { grid-column: 1 / -1; font-size: clamp(3.5rem, 1rem + 11vw, 13rem); }
+  .close p:nth-of-type(2) { grid-column: 1 / span 4; font-size: var(--lead); font-weight: 700; }
+  .close p:nth-of-type(3) { grid-column: 7 / span 6; max-width: 52ch; }
+
+  @media (max-width: 1100px) { .side { grid-column: 1 / span 5; } .receipt { grid-column: 6 / span 7; } .look { display: none; } }
+  @media (max-width: 760px) {
+    .page { grid-template-columns: 1fr; row-gap: 32px; }
+    .side { grid-column: 1; position: relative; top: auto; }
+    .bill { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; grid-template-columns: 1fr auto; align-items: center; padding: 12px var(--m); gap: 2px 12px; }
+    .bill__total { font-size: 2.25rem; grid-row: span 2; }
+    .bill__label { grid-column: 1; }
+    .bill button { grid-column: 2; grid-row: 1 / span 2; }
+    .receipt { grid-column: 1; }
+    .slot { left: -6px; right: -6px; }
+    .paper { padding: 28px 18px 56px; }
+    .close { padding-bottom: 150px; }
+    .close p:nth-of-type(2), .close p:nth-of-type(3) { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .add, .bill button, .look__pic img { transition: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#scontrino">Salta al menù</a>
+<main class="page">
+  <aside class="side" aria-label="Il tuo conto">
+    <h1 class="tall" data-name data-rise></h1>
+    <p class="side__line" data-rise>Il menù esce dalla cassa mentre scendi. Premi + sui piatti che vuoi e guarda il conto.</p>
+    <div class="bill" data-rise>
+      <p class="bill__label">Il tuo conto</p>
+      <p class="bill__total tall" aria-live="polite" data-total>0,00 €</p>
+      <p class="bill__count" data-count>Nessun piatto, per ora</p>
+      <button type="button" data-clear disabled>Svuota</button>
+    </div>
+  </aside>
+  <section class="receipt" id="scontrino" aria-label="Menù">
+    <div class="slot" aria-hidden="true"></div>
+    <div class="paper" data-paper>
+      <div class="paper__head print"><p data-name></p><p data-where></p><p data-season></p></div>
+    </div>
+  </section>
+  <figure class="look" aria-live="polite">
+    <div class="look__pic" data-look></div>
+    <figcaption><b data-look-name></b> <span data-look-desc></span></figcaption>
+  </figure>
+</main>
+<footer class="close">
+  <p class="close__name tall" data-name></p>
+  <p data-cover></p>
+  <p data-note></p>
+</footer>
+<noscript><p style="padding:24px">Questo menù si compone con JavaScript.</p></noscript>
+<script src="../js/menu.js"></script>
+<script src="../api/menu.js?stile=scontrino"></script>
+<script src="../js/kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  const M = window.MENU, h = K.h, $ = (s) => document.querySelector(s);
+  document.querySelectorAll('[data-name]').forEach((e) => (e.textContent = M.ristorante));
+  $('[data-where]').textContent = M.luogo;
+  $('[data-season]').textContent = M.stagione;
+  $('[data-cover]').textContent = 'Coperto ' + K.euro2(M.coperto) + ' a persona';
+  $('[data-note]').textContent = M.nota;
+
+  const paper = $('[data-paper]'), look = $('[data-look]');
+  const order = new Map(), lines = [];
+  M.categorie.forEach((c) => {
+    paper.append(h('h2', { class: 'print', id: 'h-' + c.id, text: c.nome }));
+    c.piatti.forEach((p) => {
+      const img = K.photo(p, ''); look.append(img);
+      const qty = h('p', { class: 'qty', 'aria-live': 'polite' });
+      const add = h('button', { class: 'add', type: 'button', 'aria-label': 'Aggiungi ' + p.nome + ' al conto', text: '+' });
+      const line = h('article', { class: 'line print' }, h('h3', { text: p.nome }), h('span', { class: 'line__price', text: K.euro(p.prezzo) }), add, h('p', { class: 'line__desc', text: p.desc }), qty);
+      const L = { p, img, qty, line };
+      add.addEventListener('click', () => { order.set(p.id, (order.get(p.id) || 0) + 1); show(L); bill(); add.animate([{ transform: 'scale(0.8)' }, { transform: 'none' }], { duration: 250 }); });
+      line.addEventListener('pointerenter', () => show(L));
+      add.addEventListener('focus', () => show(L));
+      lines.push(L); paper.append(line);
+    });
+  });
+  paper.append(h('div', { class: 'paper__foot print' }, h('p', { text: 'Coperto ' + K.euro2(M.coperto) + ' a persona' }), h('p', { text: 'Grazie e arrivederci' })));
+
+  let cur = null;
+  function show(L) {
+    if (cur === L) return;
+    if (cur) cur.img.classList.remove('on');
+    cur = L; L.img.classList.add('on');
+    $('[data-look-name]').textContent = L.p.nome; $('[data-look-desc]').textContent = '· ' + K.euro(L.p.prezzo);
+  }
+  function bill() {
+    let sum = 0, n = 0;
+    for (const L of lines) { const q = order.get(L.p.id) || 0; sum += q * L.p.prezzo; n += q; L.qty.textContent = q ? '× ' + q + ' nel conto · ' + K.euro(q * L.p.prezzo) : ''; }
+    const total = n ? sum + M.coperto : 0;
+    $('[data-total]').textContent = K.euro2(total);
+    $('[data-count]').textContent = n ? n + (n === 1 ? ' piatto' : ' piatti') + ' + coperto' : 'Nessun piatto, per ora';
+    $('[data-clear]').disabled = !n;
+  }
+  $('[data-clear]').addEventListener('click', () => { order.clear(); bill(); });
+
+  // stampa: le righe si rivelano quando entrano dal basso
+  const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }, { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.print').forEach((el) => io.observe(el));
+  // sul telefono la foto non c'è: la riga al centro dello schermo resta comunque "attiva" per il computer
+  addEventListener('scroll', () => {
+    const mid = innerHeight * 0.5; let best = null, bd = 1e9;
+    for (const L of lines) { const r = L.line.getBoundingClientRect(); const d = Math.abs(r.top + r.height / 2 - mid); if (d < bd) { bd = d; best = L; } }
+    if (best && !K.recent(1200)) show(best);
+  }, { passive: true });
+  show(lines[0]);
+  K.bar('scontrino');
+  K.reveal();
+})();
+</script>
+</body>
+</html>

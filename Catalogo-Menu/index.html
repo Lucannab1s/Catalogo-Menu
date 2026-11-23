@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="it" data-root=".">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menù in nove stili: catalogo</title>
+<meta name="description" content="Catalogo di stili per il menù di un ristorante: lo stesso menù mostrato in nove modi, dal vivo, per scegliere quello giusto.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/kit.css">
+<style>
+  :root {
+    --bg: #a8a8aa; --surface: #b4b4b6; --ink: #0e0e0e; --muted: #2f2f31;
+    --accent: #1f5c49; --accent-ink: #ffffff; --field: #1b1b1c; --field-ink: #ffffff;
+    --m: clamp(16px, 2.2vw, 32px); --gap: clamp(12px, 1.6vw, 24px);
+    --small: 0.9375rem; --body: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);
+    --lead: clamp(1.375rem, 1.1rem + 0.9vw, 2.125rem); --head: clamp(2.5rem, 1rem + 5.4vw, 6rem);
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  body { background: var(--bg); color: var(--ink); font: 400 var(--body)/1.45 "Hanken Grotesk", system-ui, sans-serif; }
+  .wrap { padding-inline: var(--m); }
+
+  .top { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: end; padding-block: clamp(40px, 7svh, 88px) clamp(32px, 5svh, 56px); }
+  .top h1 { grid-column: 1 / span 8; font-size: var(--head); font-weight: 500; letter-spacing: -0.05em; line-height: 0.9; }
+  .top__side { grid-column: 9 / span 4; display: grid; gap: 18px; justify-items: start; }
+  .top__side p { max-width: 38ch; }
+  .picks { font-size: var(--small); color: var(--muted); }
+  .picks b { color: var(--ink); font-weight: 600; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 24px;
+    border: 0; border-radius: 0; background: var(--accent); color: var(--accent-ink); font: 500 var(--body)/1 "Hanken Grotesk", system-ui, sans-serif;
+    text-decoration: none; cursor: pointer; transition: transform 0.2s var(--ease), background-color 0.2s;
+  }
+  .btn:hover { background: #17483a; }
+  .btn:active { transform: scale(0.96); }
+  .btn[aria-disabled="true"] { background: var(--surface); color: var(--muted); cursor: default; }
+  .btn--ghost { background: var(--field); color: var(--field-ink); }
+  .btn--ghost:hover { background: #000; }
+
+  .cat { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: start; padding-bottom: clamp(120px, 16svh, 200px); }
+  .stage { grid-column: 1 / span 7; position: sticky; top: var(--m); }
+  .frame { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; background: var(--field); cursor: pointer; view-transition-name: anteprima; }
+  .frame iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; pointer-events: none; opacity: 0; transition: opacity 0.5s; background: var(--field); }
+  .frame iframe.on { opacity: 1; }
+  .stage__cap { display: flex; justify-content: space-between; gap: 16px; margin-top: 14px; font-size: var(--small); color: var(--muted); }
+  .stage__cap b { color: var(--ink); font-weight: 600; }
+
+  .list { grid-column: 8 / span 5; padding-left: var(--gap); }
+  .list h2 { font-size: var(--lead); font-weight: 500; letter-spacing: -0.03em; line-height: 1; margin-bottom: 20px; }
+  .row { display: grid; grid-template-columns: clamp(120px, 12.5vw, 184px) 1fr; column-gap: 18px; align-items: start; padding: 16px 0; }
+  .row + .row { margin-top: 6px; }
+  .row__thumb { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; background: var(--field); cursor: pointer; transition: transform 0.3s var(--ease); }
+  .row.on .row__thumb { transform: scale(1.04); }
+  .row__h { font: inherit; }
+  .row__head { display: grid; width: 100%; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; transition: transform 0.3s var(--ease); }
+  .row__head:hover { transform: translateX(6px); }
+  .row__name { font-size: var(--lead); font-weight: 500; letter-spacing: -0.035em; line-height: 1.05; color: var(--muted); transition: color 0.25s; }
+  .row.fav .row__tech::before { content: 'Preferito · '; color: var(--accent); font-weight: 600; }
+  .row__tech { font-size: var(--small); color: var(--muted); margin-top: 4px; }
+  .row__price { font-size: var(--small); font-weight: 600; color: var(--ink); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .row.on .row__name { color: var(--ink); }
+  .row__more { display: none; gap: 14px; margin: 14px 0 12px; }
+  .row.on .row__more { display: grid; margin-bottom: 44px; animation: open 0.5s var(--ease); }
+  @keyframes open { from { opacity: 0; transform: translateY(-8px); } }
+  .row__fit { font-size: var(--body); }
+  .row__fit b { font-weight: 600; }
+  .row__acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row__acts .btn { min-height: 44px; padding: 0 18px; font-size: var(--small); }
+  .fav[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+  .foot { background: var(--field); color: var(--field-ink); padding: clamp(64px, 10svh, 120px) var(--m) var(--m); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 48px; }
+  .foot h2 { grid-column: 1 / span 7; font-size: var(--head); font-weight: 500; letter-spacing: -0.05em; line-height: 0.9; }
+  .foot__send { grid-column: 9 / span 4; display: grid; gap: 18px; align-content: end; justify-items: start; }
+  .foot__send .picks { color: #c9c9cc; }
+  .foot__send .picks b { color: #fff; }
+  .foot__dev { grid-column: 1 / span 6; color: #d6d6d8; max-width: 60ch; }
+  .foot__dev code { font-family: ui-monospace, Consolas, monospace; color: #fff; }
+  .foot__credits { grid-column: 7 / span 6; color: #d6d6d8; }
+  .foot__credits a { color: #fff; }
+
+  @media (max-width: 1100px) {
+    .top h1 { grid-column: 1 / -1; }
+    .top__side { grid-column: 1 / -1; margin-top: 24px; }
+    .stage { grid-column: 1 / span 6; }
+    .list { grid-column: 7 / span 6; }
+  }
+  @media (max-width: 760px) {
+    .cat { grid-template-columns: 1fr; }
+    .stage { grid-column: 1; top: 0; z-index: 3; margin-inline: calc(-1 * var(--m)); padding: 0 var(--m) 10px; background: var(--bg); }
+    .frame { aspect-ratio: auto; height: 38svh; }
+    .list { grid-column: 1; margin-top: 24px; }
+    .foot h2, .foot__send, .foot__dev, .foot__credits { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .row__head, .btn, .row__thumb { transition: none; } .row.on .row__more { animation: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#elenco">Salta all'elenco degli stili</a>
+<main>
+  <header class="top wrap">
+    <h1 data-rise>Nove modi di servire un menù</h1>
+    <div class="top__side">
+      <p data-rise>Lo stesso menù di esempio, presentato in nove stili. L'anteprima mostra dal vivo lo stile che stai leggendo: aprilo, provalo, segna quelli che ti piacciono.</p>
+      <p class="picks" data-picks data-rise>Preferiti: <b>nessuno, per ora</b></p>
+      <a class="btn" href="#" data-send data-rise>Invia la scelta</a>
+    </div>
+  </header>
+
+  <section class="cat wrap" aria-labelledby="elenco">
+    <div class="stage">
+      <a class="frame" href="stili/lista.html" data-frame aria-label="Apri lo stile in anteprima">
+        <iframe title="Anteprima dello stile" tabindex="-1" loading="eager"></iframe>
+        <iframe title="Anteprima dello stile" tabindex="-1" loading="eager"></iframe>
+      </a>
+      <p class="stage__cap"><b data-cap-name>Lista viva</b><span data-cap-fit>Trattorie, osterie, cucina di casa · 250 €</span></p>
+    </div>
+    <div class="list">
+      <h2 id="elenco">Gli stili</h2>
+      <ul data-rows></ul>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <h2>Scegli e invia</h2>
+  <div class="foot__send">
+    <p class="picks" data-picks>Preferiti: <b>nessuno, per ora</b></p>
+    <a class="btn" href="#" data-send>Invia la scelta</a>
+  </div>
+  <p class="foot__dev">Per lo sviluppatore: piatti, prezzi, foto e nome del locale stanno tutti in <code>js/menu.js</code>; cambiandoli si aggiornano tutti e nove gli stili. Ogni stile è una pagina sola in <code>stili/</code>, con il suo CSS e il suo JavaScript dentro, pronta da copiare. L'email per "Invia la scelta" si imposta in <code>CONFIG</code>, nello stesso file. Con il backend (<code>npm start</code>) ogni stile ha il suo menù: piatti da aggiungere, nascondere o eliminare in <code>/admin/</code>.</p>
+  <p class="foot__credits" data-credits>Piatti, prezzi e nome del locale sono di esempio. Foto da Wikimedia Commons e Openverse con licenze Creative Commons: l'elenco completo, con autori e link, è in <code>assets/credits.json</code>.</p>
+</footer>
+
+<script src="js/menu.js"></script>
+<script src="js/kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  const S = window.STILI, rowsEl = document.querySelector('[data-rows]');
+  const frame = document.querySelector('[data-frame]'), frames = Array.from(frame.querySelectorAll('iframe'));
+  const capName = document.querySelector('[data-cap-name]'), capFit = document.querySelector('[data-cap-fit]');
+
+  /* righe dell'elenco */
+  const rows = S.map((s) => {
+    const fav = K.h('button', { class: 'btn btn--ghost fav', type: 'button', 'aria-pressed': String(K.fav.has(s.id)) }, 'Mi piace');
+    const head = K.h('button', { class: 'row__head', type: 'button', 'aria-expanded': 'false', 'aria-controls': 'more-' + s.id },
+      K.h('span', { class: 'row__name', style: 'view-transition-name: titolo-' + s.id, text: s.nome }),
+      K.h('span', { class: 'row__tech', text: s.tecnica }),
+      K.h('span', { class: 'row__price', text: K.euro(s.prezzo) }));
+    const li = K.h('li', { class: 'row' + (K.fav.has(s.id) ? ' fav' : ''), id: 'stile-' + s.id },
+      K.h('img', { class: 'row__thumb', src: 'assets/anteprime/' + s.id + '.jpg', alt: 'Il primo schermo dello stile ' + s.nome, width: 1440, height: 900, decoding: 'async' }),
+      K.h('div', { class: 'row__body', 'data-rise': true },
+        K.h('h3', { class: 'row__h' }, head),
+        K.h('div', { class: 'row__more', id: 'more-' + s.id },
+          K.h('p', { text: s.desc }),
+          K.h('p', { class: 'row__fit' }, K.h('b', { text: 'Adatto a: ' }), s.adatto),
+          K.h('p', { class: 'row__acts' }, K.h('a', { class: 'btn', href: 'stili/' + s.id + '.html' }, 'Apri lo stile →'), fav))));
+    li.querySelector('.row__thumb').addEventListener('click', () => { hoverAt = performance.now(); activate(i(s.id)); });
+    fav.addEventListener('click', () => { const on = K.fav.toggle(s.id); fav.setAttribute('aria-pressed', String(on)); li.classList.toggle('fav', on); updatePicks(); });
+    head.addEventListener('click', () => { hoverAt = performance.now(); activate(i(s.id)); });
+    head.addEventListener('focus', () => { hoverAt = performance.now(); activate(i(s.id)); });
+    head.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { hoverAt = performance.now(); activate(i(s.id)); } });
+    rowsEl.append(li);
+    return { s, li, head };
+  });
+  const i = (id) => S.findIndex((s) => s.id === id);
+
+  /* anteprima viva: due iframe che si danno il cambio con una dissolvenza */
+  let cur = -1, front = 0, hoverAt = 0, loadTimer = 0;
+  function fit() {
+    const w = frame.clientWidth, h = frame.clientHeight;
+    const vw = K.isPhone() ? 780 : 1440, scale = w / vw, vh = h / scale;
+    frames.forEach((f) => { f.style.width = vw + 'px'; f.style.height = vh + 'px'; f.style.transform = 'scale(' + scale + ')'; });
+  }
+  function activate(n) {
+    if (n === cur || n < 0) return;
+    cur = n;
+    rows.forEach((r, k) => { r.li.classList.toggle('on', k === n); r.head.setAttribute('aria-expanded', String(k === n)); });
+    const s = S[n];
+    frame.href = 'stili/' + s.id + '.html';
+    frame.setAttribute('aria-label', 'Apri lo stile ' + s.nome);
+    clearTimeout(loadTimer);
+    loadTimer = setTimeout(() => {
+      const back = frames[1 - front];
+      back.onload = () => { capName.textContent = s.nome; capFit.textContent = s.adatto + ' · ' + K.euro(s.prezzo); back.classList.add('on'); frames[front].classList.remove('on'); front = 1 - front; setTimeout(() => { if (frames[1 - front].classList.contains('on') === false) frames[1 - front].src = 'about:blank'; }, 600); };
+      back.src = 'stili/' + s.id + '.html?anteprima';
+    }, 220);
+  }
+
+  /* scorrendo, diventa attiva la riga al centro dello schermo */
+  addEventListener('scroll', () => {
+    if (performance.now() - hoverAt < 1500) return;
+    const mid = innerHeight * (K.isPhone() ? 0.68 : 0.5);
+    let best = 0, bd = 1e9;
+    rows.forEach((r, k) => { const rr = r.head.getBoundingClientRect(); const d = Math.abs(rr.top + rr.height / 2 - mid); if (d < bd) { bd = d; best = k; } });
+    activate(best);
+  }, { passive: true });
+
+  /* preferiti e invio */
+  function updatePicks() {
+    const ids = K.fav.get(), names = S.filter((s) => ids.includes(s.id)).map((s) => s.nome);
+    document.querySelectorAll('[data-picks] b').forEach((b) => (b.textContent = names.length ? names.join(', ') : 'nessuno, per ora'));
+    document.querySelectorAll('[data-send]').forEach((a) => {
+      if (!names.length) { a.setAttribute('aria-disabled', 'true'); a.href = '#elenco'; return; }
+      a.removeAttribute('aria-disabled');
+      const base = location.href.replace(/[#?].*$/, '').replace(/index\.html$/, '');
+      const body = 'Ciao,\n\nper il menù del mio locale mi piacciono questi stili:\n\n' +
+        S.filter((s) => ids.includes(s.id)).map((s) => '- ' + s.nome + ' (' + s.tecnica + '), ' + K.euro(s.prezzo) + '\n  ' + base + 'stili/' + s.id + '.html').join('\n') + '\n\nGrazie!';
+      a.href = 'mailto:' + encodeURIComponent(window.CONFIG.emailSviluppatore || '') + '?subject=' + encodeURIComponent('Stile del menù scelto') + '&body=' + encodeURIComponent(body);
+    });
+  }
+  addEventListener('storage', () => { rows.forEach((r) => { const on = K.fav.has(r.s.id); r.li.classList.toggle('fav', on); r.li.querySelector('.fav').setAttribute('aria-pressed', String(on)); }); updatePicks(); });
+  addEventListener('pageshow', () => { rows.forEach((r) => { const on = K.fav.has(r.s.id); r.li.classList.toggle('fav', on); r.li.querySelector('.fav').setAttribute('aria-pressed', String(on)); }); updatePicks(); });
+
+  fit();
+  addEventListener('resize', fit);
+  const fromHash = location.hash.startsWith('#stile-') ? i(location.hash.slice(7)) : -1;
+  activate(fromHash >= 0 ? fromHash : 0);
+  if (fromHash >= 0) hoverAt = performance.now();
+  updatePicks();
+  K.reveal();
+})();
+</script>
+</body>
+</html>

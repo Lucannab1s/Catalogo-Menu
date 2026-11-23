@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="it" data-root="..">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menù: stile Poster fisso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/kit.css">
+<style>
+  /* POSTER FISSO: il nome della portata resta fermo su un campo di colore, i piatti scorrono accanto.
+     Bebas Neue / EB Garamond, rosso sangue di bue su grigio. Solo CSS (position: sticky) per la parte fissa. */
+  :root {
+    --bg: #e2e2e2; --surface: #d6d6d6; --ink: #7d0c14; --muted: #6e2a30; --field: #7d0c14; --field-ink: #ececec;
+    --m: clamp(16px, 2.2vw, 32px); --gap: clamp(12px, 1.6vw, 24px);
+    --small: 1rem; --body: clamp(1.125rem, 1.05rem + 0.25vw, 1.3125rem);
+    --lead: clamp(1.625rem, 1.2rem + 1.2vw, 2.5rem); --head: clamp(4rem, 1rem + 9vw, 9rem);
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  body { background: var(--bg); color: var(--ink); font: 400 var(--body)/1.45 "EB Garamond", Georgia, serif; }
+  .bebas { font-family: "Bebas Neue", Impact, sans-serif; font-weight: 400; letter-spacing: -0.01em; line-height: 0.85; text-transform: uppercase; }
+
+  .top { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); min-height: calc(100svh - 56px); padding: var(--m); align-items: end; }
+  .top__text { grid-column: 1 / span 7; display: grid; gap: 28px; padding-bottom: 2svh; }
+  .top h1 { font-size: var(--head); }
+  .top__line { font-size: var(--lead); font-style: italic; line-height: 1.15; max-width: 24ch; }
+  .jump { display: flex; flex-wrap: wrap; gap: 6px 26px; }
+  .jump a { font: 400 var(--lead)/1 "Bebas Neue", Impact, sans-serif; text-decoration: none; display: inline-block; transition: transform 0.25s var(--ease); }
+  .jump a:hover { transform: translateY(-4px); }
+  .top__pic { grid-column: 8 / span 5; align-self: stretch; position: relative; overflow: hidden; min-height: 60svh; }
+  .top__pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  .course { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); padding: clamp(80px, 12svh, 160px) var(--m) 0; align-items: start; }
+  .pin { grid-column: 1 / span 5; position: sticky; top: var(--m); height: calc(100svh - 2 * var(--m) - 56px); display: flex; flex-direction: column; justify-content: space-between; padding: clamp(24px, 3vw, 44px); background: var(--field); color: var(--field-ink); }
+  .pin h2 { font-size: clamp(3.5rem, 1rem + 7.4vw, 8.5rem); }
+  .pin h2 span { display: inline-block; }
+  .pin__list { display: grid; gap: 4px; font-size: var(--lead); line-height: 1.15; }
+  .pin__list li { transition: transform 0.35s var(--ease); }
+  .pin__list li.on { transform: translateX(14px); font-style: italic; }
+  .pin__list li.on::before { content: '→ '; }
+  .pin__foot { display: grid; gap: 6px; }
+  .pin__foot p:first-child { font-size: var(--lead); font-style: italic; line-height: 1.1; }
+  .dishes { grid-column: 7 / span 6; display: grid; gap: clamp(72px, 12svh, 140px); padding-bottom: 8svh; }
+  .dish { display: grid; gap: 18px; }
+  .dish__pic { overflow: hidden; aspect-ratio: 4 / 3; background: var(--surface); }
+  .dish__pic img { width: 100%; height: 118%; object-fit: cover; will-change: transform; }
+  .dish:nth-child(even) .dish__pic { width: 78%; justify-self: end; }
+  .dish__row { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; }
+  .dish h3 { font-size: var(--lead); font-weight: 500; line-height: 1.05; letter-spacing: -0.01em; }
+  .dish__price { font: 400 var(--lead)/1 "Bebas Neue", Impact, sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .dish p { max-width: 46ch; }
+  .tags { display: flex; gap: 8px; font-size: var(--small); font-style: italic; }
+  .tags span + span::before { content: '· '; }
+
+  .close { margin-top: clamp(120px, 16svh, 200px); background: var(--field); color: var(--field-ink); padding: clamp(64px, 10svh, 120px) var(--m) var(--m); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 32px; }
+  .close__name { grid-column: 1 / -1; font-size: clamp(4rem, 1rem + 12vw, 15rem); }
+  .close p:not(.close__name):first-of-type { grid-column: 1 / span 4; font-size: var(--lead); font-style: italic; }
+  .close p:last-child { grid-column: 7 / span 6; max-width: 52ch; }
+
+  @media (max-width: 1100px) { .pin { grid-column: 1 / span 5; } .dishes { grid-column: 6 / span 7; } }
+  @media (max-width: 760px) {
+    .top { grid-template-columns: 1fr; min-height: 0; padding-top: 40px; row-gap: 32px; }
+    .top__text, .top__pic { grid-column: 1; }
+    .top__pic { min-height: 0; aspect-ratio: 4 / 5; grid-row: 2; }
+    .course { grid-template-columns: 1fr; padding-top: 72px; }
+    .pin { grid-column: 1; top: 0; z-index: 3; height: auto; flex-direction: row; align-items: end; justify-content: space-between; margin-inline: calc(-1 * var(--m)); padding: 14px var(--m); }
+    .pin h2 { font-size: 3.5rem; }
+    .pin__foot { text-align: right; font-size: 1rem; }
+    .pin__list { display: none; }
+    .pin__foot p:first-child { font-size: 1.125rem; }
+    .dishes { grid-column: 1; margin-top: 32px; gap: 64px; }
+    .dish:nth-child(even) .dish__pic { width: 100%; }
+    .close p:not(.close__name):first-of-type, .close p:last-child { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .jump a, .pin__list li { transition: none; } .dish__pic img { height: 100%; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#antipasti">Salta al menù</a>
+<main>
+  <header class="top">
+    <div class="top__text">
+      <h1 class="bebas" data-name data-rise></h1>
+      <p class="top__line" data-line data-rise></p>
+      <nav class="jump" aria-label="Portate" data-jump data-rise></nav>
+    </div>
+    <figure class="top__pic" data-rise><img src="../assets/tavola.jpg" alt="Una tavola apparecchiata con dolci su una tovaglia a quadri" width="1400" height="933"></figure>
+  </header>
+  <div data-courses></div>
+</main>
+<footer class="close">
+  <p class="close__name bebas" data-name></p>
+  <p data-cover></p>
+  <p data-note></p>
+</footer>
+<noscript><p style="padding:24px">Questo menù si compone con JavaScript.</p></noscript>
+<script src="../js/menu.js"></script>
+<script src="../api/menu.js?stile=poster"></script>
+<script src="../js/kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  const M = window.MENU, h = K.h, $ = (s) => document.querySelector(s);
+  document.querySelectorAll('[data-name]').forEach((e) => (e.textContent = M.ristorante));
+  $('[data-line]').textContent = M.stagione + '. ' + M.luogo + '.';
+  $('[data-cover]').textContent = 'Coperto ' + K.euro2(M.coperto);
+  $('[data-note]').textContent = M.nota;
+  const jump = $('[data-jump]'), host = $('[data-courses]');
+  const pics = [];
+  M.categorie.forEach((c) => {
+    jump.append(h('a', { href: '#' + c.id, text: c.nome }));
+    const prices = c.piatti.map((p) => p.prezzo);
+    const title = h('h2', { class: 'bebas', id: 'h-' + c.id, text: c.nome });
+    const letters = K.split(title);
+    const marks = c.piatti.map((p) => h('li', { text: p.nome }));
+    const pin = h('div', { class: 'pin' }, title, h('ul', { class: 'pin__list', 'aria-hidden': 'true' }, marks),
+      h('div', { class: 'pin__foot' }, h('p', { text: c.breve }), h('p', { text: c.piatti.length + ' piatti · da ' + K.euro(Math.min(...prices)) + ' a ' + K.euro(Math.max(...prices)) })));
+    const list = h('div', { class: 'dishes' }, c.piatti.map((p) => {
+      const img = K.photo(p, ''); const box = h('div', { class: 'dish__pic', 'data-rise': true }, img); pics.push(box);
+      return h('article', { class: 'dish' }, box,
+        h('div', { class: 'dish__row', 'data-rise': true }, h('h3', { text: p.nome }), h('span', { class: 'dish__price', text: K.euro(p.prezzo) })),
+        h('p', { 'data-rise': true, text: p.desc }), K.tags(p));
+    }));
+    const sec = h('section', { class: 'course', id: c.id, 'aria-labelledby': 'h-' + c.id }, pin, list);
+    host.append(sec);
+    // nel poster, il piatto che stai guardando è segnato con una freccia
+    const arts = Array.from(list.children);
+    let on = -1;
+    K.add(sec, () => {
+      let best = 0, bd = 1e9;
+      arts.forEach((a, k) => { const r = a.getBoundingClientRect(); const d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = k; } });
+      if (best !== on) { if (on >= 0) marks[on].classList.remove('on'); on = best; marks[on].classList.add('on'); }
+    });
+    // il nome della portata entra lettera per lettera quando la sezione arriva
+    if (!K.reduced) {
+      letters.forEach((s) => { s.style.transform = 'translateY(0.6em)'; s.style.opacity = '0'; });
+      const io = new IntersectionObserver((es) => { if (es[0].isIntersecting) { io.disconnect(); letters.forEach((s, i) => s.animate([{ transform: 'translateY(0.6em)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 700, delay: i * 45, easing: 'cubic-bezier(.2,.7,.1,1)', fill: 'forwards' })); } }, { threshold: 0.2 });
+      io.observe(pin);
+    }
+  });
+  // le foto scivolano piano dentro la loro cornice mentre scorri
+  if (!K.reduced) pics.forEach((box) => {
+    const img = box.firstChild;
+    K.add(box, () => { const r = box.getBoundingClientRect(); const t = (r.top + r.height / 2) / innerHeight - 0.5; img.style.transform = 'translate3d(0,' + (-8 - t * 12).toFixed(2) + '%,0)'; });
+  });
+  K.bar('poster');
+  K.reveal();
+})();
+</script>
+</body>
+</html>

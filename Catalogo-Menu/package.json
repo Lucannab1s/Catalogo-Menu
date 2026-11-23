@@ -1,0 +1,12 @@
+{
+  "name": "catalogo-menu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Catalogo di stili di menù con un backend per gestire i piatti di ogni stile.",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
