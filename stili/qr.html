@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="it" data-root="..">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0e0e0e">
+<title>Menù: stile Menù da tavolo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/kit.css">
+<style>
+  /* MENÙ DA TAVOLO: pensato prima di tutto per il telefono, come un'app che si apre dal codice QR sul tavolo.
+     Portate fisse in alto, il piatto si apre in un foglio che sale dal basso, la lista si mostra al cameriere.
+     Gloock / Schibsted Grotesk, melanzana su crema e terracotta. */
+  :root {
+    --bg: #f3ede3; --card: #fffaf2; --ink: #2a1730; --muted: #66556a; --line: rgba(42, 23, 48, 0.14);
+    --plum: #2a1730; --plum-ink: #f6efe4; --accent: #b8432c; --accent-ink: #ffffff; --chip: #e8dfd1;
+    --m: 16px; --col: 480px; --tabs: 56px;
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1); --sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  html { scroll-padding-top: calc(var(--kb) + var(--tabs) + 8px); }
+  body { background: var(--bg); color: var(--ink); font: 400 1.0625rem/1.45 "Schibsted Grotesk", system-ui, sans-serif; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+  .serif { font-family: "Gloock", Georgia, serif; font-weight: 400; letter-spacing: -0.01em; }
+  .num { font-variant-numeric: tabular-nums; }
+  svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+  .app { position: relative; max-width: var(--col); margin: 0 auto; min-height: 100svh; background: var(--bg); padding-bottom: 120px; }
+
+  /* testata */
+  .cover { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--chip); }
+  .cover img { width: 100%; height: 100%; object-fit: cover; }
+  .head { display: grid; gap: 10px; padding: 22px var(--m) 18px; }
+  .head h1 { font-size: clamp(2.25rem, 10vw, 2.75rem); line-height: 1; }
+  .head__line { color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .chips span { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 999px; background: var(--chip); font-size: 0.9375rem; font-weight: 600; }
+  .chips span.on { background: var(--plum); color: var(--plum-ink); }
+
+  /* portate: fisse sotto la barra, con l'indicatore che scivola */
+  .tabs { position: sticky; top: var(--kb); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); transition: top 0.4s var(--kb-ease); }
+  .tabs__row { position: relative; display: flex; gap: 4px; height: var(--tabs); padding: 0 calc(var(--m) - 12px); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .tabs__row::-webkit-scrollbar { display: none; }
+  .tab { flex: none; display: inline-flex; align-items: center; padding: 0 12px; color: var(--muted); font-weight: 600; text-decoration: none; transition: color 0.2s; }
+  .tab[aria-current="true"] { color: var(--ink); }
+  .tab:active { opacity: 0.6; }
+  .tabs__bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 1px; border-radius: 3px 3px 0 0; background: var(--accent); transform-origin: 0 0; transition: transform 0.35s var(--ease); }
+
+  /* elenco */
+  .sec { padding: 28px var(--m) 8px; }
+  .sec h2 { font-size: 1.875rem; line-height: 1.05; }
+  .sec__brief { color: var(--muted); margin-top: 4px; }
+  .sec ul { margin-top: 14px; }
+  .dish { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 104px; gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .dish__open { display: grid; gap: 6px; align-content: start; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; }
+  .dish__open::after { content: ''; position: absolute; inset: 0; }
+  .dish:has(.dish__open:active) { background: rgba(42, 23, 48, 0.04); }
+  .dish h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.2; }
+  .dish__desc { color: var(--muted); font-size: 0.9375rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .dish__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 2px; }
+  .dish__price { font-weight: 700; }
+  .tag { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: 6px; background: var(--chip); font-size: 0.8125rem; font-weight: 600; color: var(--ink); }
+  .dish__pic { position: relative; align-self: start; width: 104px; height: 104px; border-radius: 14px; overflow: visible; }
+  .dish__pic img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; background: var(--chip); }
+  .add { position: absolute; right: -6px; bottom: -6px; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; border: 3px solid var(--bg); border-radius: 999px; background: var(--plum); color: var(--plum-ink); cursor: pointer; transition: transform 0.14s var(--ease), background-color 0.2s; }
+  .add:active { transform: scale(0.88); }
+  .add svg.i { width: 20px; height: 20px; }
+  .add.has { background: var(--accent); }
+  .add b { font: 700 1rem/1 "Schibsted Grotesk", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+
+  .foot { padding: 40px var(--m) 24px; color: var(--muted); display: grid; gap: 10px; font-size: 0.9375rem; }
+  .foot b { color: var(--ink); }
+
+  /* la lista: una barra in basso, a portata di pollice */
+  .tray { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; width: min(100%, var(--col)); margin: 0 auto; padding: 10px var(--m) max(12px, env(safe-area-inset-bottom, 0px)); pointer-events: none; transform: translateY(120%); transition: transform 0.45s var(--sheet); }
+  .tray.on { transform: none; pointer-events: auto; }
+  .tray button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 18px; border: 0; border-radius: 16px; background: var(--plum); color: var(--plum-ink); font-weight: 600; cursor: pointer; box-shadow: 0 12px 28px -10px rgba(42, 23, 48, 0.55); transition: transform 0.14s var(--ease); }
+  .tray button:active { transform: scale(0.97); }
+  .tray__n { display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 8px; margin-right: 10px; border-radius: 999px; background: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* fogli che salgono dal basso (dialog nativo: focus, Esc e sfondo inerte li dà il browser) */
+  dialog.sheet { position: fixed; inset: auto 0 0 0; width: min(100%, var(--col)); max-width: none; max-height: min(92dvh, 860px); margin: 0 auto; padding: 0; border: 0; border-radius: 22px 22px 0 0; background: var(--card); color: var(--ink); overflow: hidden; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.5s var(--sheet); }
+  dialog.sheet:not([open]) { display: none; }
+  dialog.sheet.open { transform: none; }
+  dialog.sheet::backdrop { background: rgba(28, 12, 30, 0.5); opacity: 0; transition: opacity 0.4s; }
+  dialog.sheet.open::backdrop { opacity: 1; }
+  dialog.sheet.drag { transition: none; }
+  .grab { position: absolute; left: 0; right: 0; top: 0; z-index: 3; height: 34px; display: grid; place-items: center; touch-action: none; cursor: grab; }
+  .grab span { width: 40px; height: 5px; border-radius: 5px; background: rgba(255, 255, 255, 0.85); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08); }
+  .grab--plain span { background: var(--line); box-shadow: none; }
+  .x { position: absolute; right: 12px; top: 12px; z-index: 4; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 999px; background: rgba(255, 250, 242, 0.92); color: var(--ink); cursor: pointer; }
+  .x:active { transform: scale(0.92); }
+  .scroll { overflow-y: auto; overscroll-behavior: contain; padding-bottom: max(18px, env(safe-area-inset-bottom, 0px)); }
+  .s-pic { aspect-ratio: 4 / 3; background: var(--chip); touch-action: none; }
+  .s-pic img { width: 100%; height: 100%; object-fit: cover; }
+  .s-body { display: grid; gap: 12px; padding: 20px var(--m) 8px; }
+  .s-body h2 { font-size: 2rem; line-height: 1.05; padding-right: 8px; }
+  .s-cat { color: var(--muted); font-weight: 600; }
+  .s-desc { font-size: 1.0625rem; }
+  .s-act { position: sticky; bottom: 0; display: flex; gap: 10px; padding: 14px var(--m) 4px; background: linear-gradient(rgba(255, 250, 242, 0), var(--card) 30%); }
+  .stepper { display: inline-flex; align-items: center; gap: 2px; padding: 4px; border-radius: 14px; background: var(--chip); }
+  .stepper button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 10px; background: none; color: var(--ink); cursor: pointer; }
+  .stepper button:active { background: rgba(42, 23, 48, 0.1); }
+  .stepper button[disabled] { opacity: 0.35; cursor: default; }
+  .stepper output { min-width: 26px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .cta { flex: 1; min-height: 52px; padding: 0 18px; border: 0; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; transition: transform 0.14s var(--ease); }
+  .cta:active { transform: scale(0.97); }
+  .l-head { padding: 34px var(--m) 6px; display: grid; gap: 4px; }
+  .l-head h2 { font-size: 2rem; }
+  .l-head p { color: var(--muted); }
+  .l-list { padding: 6px var(--m); }
+  .l-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .l-item h3 { font-size: 1.0625rem; font-weight: 600; line-height: 1.2; }
+  .l-item p { color: var(--muted); font-size: 0.9375rem; }
+  .l-item .stepper { grid-row: 1 / span 2; grid-column: 2; }
+  .l-sum { display: grid; gap: 8px; margin: 8px var(--m) 0; padding: 16px 0; border-top: 2px solid var(--ink); }
+  .l-sum div { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .l-sum .tot { font-size: 1.375rem; font-weight: 700; }
+  .l-note { margin: 4px var(--m) 0; padding: 14px; border-radius: 14px; background: var(--chip); font-size: 0.9375rem; }
+  .l-clear { margin: 14px var(--m) 0; min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* computer: l'app sta in una colonna da telefono, appoggiata sul tavolo */
+  .desk { display: none; }
+  @media (min-width: 761px) {
+    body { background: #1b1210; }
+    .desk { display: block; position: fixed; inset: 0; z-index: 0; }
+    .desk img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.42) saturate(1.1); }
+    .desk p { position: absolute; left: clamp(24px, 4vw, 64px); bottom: clamp(24px, 6svh, 64px); width: min(22ch, calc(50vw - var(--col) / 2 - 2 * clamp(24px, 4vw, 64px))); color: #f6efe4; font: 400 clamp(1.5rem, 0.8rem + 1.4vw, 2.5rem)/1.08 "Gloock", Georgia, serif; text-wrap: balance; }
+    .app { z-index: 1; margin: 40px auto 0; border-radius: 28px 28px 0 0; overflow: clip; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.7); }
+  }
+  @media (min-width: 761px) and (max-width: 1100px) { .desk p { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    dialog.sheet, dialog.sheet::backdrop, .tray, .tabs__bar, .add, .cta, .tray button { transition: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#portate">Salta al menù</a>
+<div class="desk" aria-hidden="true"><img src="../assets/tavola.jpg" alt="" width="1400" height="933"><p>Inquadra il codice sul tavolo: il menù si apre sul telefono.</p></div>
+<div class="app">
+  <header>
+    <figure class="cover"><img src="../assets/cacio-e-pepe.jpg" alt="Un piatto di cacio e pepe" width="1400" height="1050" data-cover-img></figure>
+    <div class="head">
+      <h1 class="serif" data-name></h1>
+      <p class="head__line" data-line></p>
+      <p class="chips" data-chips></p>
+    </div>
+  </header>
+  <nav class="tabs" aria-label="Portate"><div class="tabs__row" data-tabs><span class="tabs__bar" data-bar aria-hidden="true"></span></div></nav>
+  <main id="portate" data-secs></main>
+  <footer class="foot"><p data-note></p><p data-cover></p></footer>
+</div>
+
+<div class="tray" data-tray><button type="button" data-tray-btn aria-haspopup="dialog"><span><span class="tray__n" data-tray-n>0</span>La tua lista</span><span class="num" data-tray-sum>0 €</span></button></div>
+
+<dialog class="sheet" data-dish aria-labelledby="s-name">
+  <div class="grab" data-grab aria-hidden="true"><span></span></div>
+  <button class="x" type="button" data-x aria-label="Chiudi"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="scroll">
+    <figure class="s-pic" data-grab-too><img data-s-img src="../assets/cacio-e-pepe.jpg" alt=""></figure>
+    <div class="s-body">
+      <p class="s-cat" data-s-cat></p>
+      <h2 class="serif" id="s-name" data-s-name></h2>
+      <p class="s-desc" data-s-desc></p>
+      <p class="dish__meta" data-s-tags></p>
+    </div>
+    <div class="s-act">
+      <div class="stepper" role="group" aria-label="Quantità">
+        <button type="button" data-s-less aria-label="Uno in meno"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+        <output data-s-q aria-live="polite">1</output>
+        <button type="button" data-s-more aria-label="Uno in più"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <button class="cta" type="button" data-s-add></button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="sheet" data-list aria-labelledby="l-title">
+  <div class="grab grab--plain" data-grab aria-hidden="true"><span></span></div>
+  <button class="x" type="button" data-x aria-label="Chiudi"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="scroll">
+    <div class="l-head"><h2 class="serif" id="l-title">La tua lista</h2><p>Non è un ordine: mostrala al cameriere quando arriva al tavolo.</p></div>
+    <div class="l-list" data-l-items></div>
+    <div class="l-sum">
+      <div><span>Siete in</span>
+        <div class="stepper" role="group" aria-label="Persone al tavolo">
+          <button type="button" data-p-less aria-label="Una persona in meno"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+          <output data-p aria-live="polite">2</output>
+          <button type="button" data-p-more aria-label="Una persona in più"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+      </div>
+      <div><span>Piatti</span><span class="num" data-l-dishes></span></div>
+      <div><span data-l-cover-label>Coperto</span><span class="num" data-l-cover></span></div>
+      <div class="tot"><span>Totale</span><span class="num" data-l-total></span></div>
+    </div>
+    <p class="l-note" data-l-note></p>
+    <button class="l-clear" type="button" data-l-clear>Svuota la lista</button>
+  </div>
+</dialog>
+<noscript><p style="padding:24px">Questo menù si compone con JavaScript.</p></noscript>
+<script src="../js/menu.js"></script>
+<script src="../api/menu.js?stile=qr"></script>
+<script src="../js/kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  const M = window.MENU, h = K.h, $ = (s, r) => (r || document).querySelector(s);
+  const all = K.all(), byId = new Map(all.map((p) => [p.id, p]));
+  const SVG = (d) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('class', 'i'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true'); const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', d); s.append(p); return s; };
+  const PLUS = 'M12 5v14M5 12h14', MINUS = 'M5 12h14';
+
+  document.querySelectorAll('[data-name]').forEach((e) => (e.textContent = M.ristorante));
+  $('[data-line]').textContent = M.stagione + ' · ' + M.luogo;
+  $('[data-note]').textContent = M.nota;
+  $('[data-cover]').textContent = 'Coperto ' + K.euro2(M.coperto) + ' a persona.';
+  // il codice QR del tavolo può portare il numero: ...qr.html?tavolo=12
+  const tav = (new URLSearchParams(location.search).get('tavolo') || '').replace(/[^\w-]/g, '').slice(0, 6);
+  const chips = $('[data-chips]');
+  if (tav) chips.append(h('span', { class: 'on', text: 'Tavolo ' + tav }));
+  chips.append(h('span', { text: all.length + ' piatti' }), h('span', { text: 'Coperto ' + K.euro2(M.coperto) }));
+
+  /* ---------- la lista (resta finché la scheda è aperta) ---------- */
+  const KEY = 'menu-qr-lista';
+  const list = new Map();
+  let persone = 2;
+  try { const saved = JSON.parse(sessionStorage.getItem(KEY) || '{}'); for (const [id, q] of Object.entries(saved.l || {})) if (byId.has(id) && q > 0) list.set(id, Math.min(99, q | 0)); if (saved.p) persone = K.clamp(saved.p | 0, 1, 30); } catch (e) { /* niente memoria: va bene lo stesso */ }
+  const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify({ l: Object.fromEntries(list), p: persone })); } catch (e) { /* niente */ } };
+  const setQ = (id, q) => { q = K.clamp(q, 0, 99); if (q) list.set(id, q); else list.delete(id); save(); refresh(); };
+
+  /* ---------- portate e piatti ---------- */
+  const secs = $('[data-secs]'), tabsRow = $('[data-tabs]'), bar = $('[data-bar]');
+  const rows = new Map(), tabs = [];
+  M.categorie.forEach((c) => {
+    const tab = h('a', { class: 'tab', href: '#' + c.id, text: c.nome, 'aria-current': 'false' });
+    tabsRow.append(tab);
+    const sec = h('section', { class: 'sec', id: c.id, 'aria-labelledby': 'h-' + c.id },
+      h('h2', { class: 'serif', id: 'h-' + c.id, text: c.nome }), h('p', { class: 'sec__brief', text: c.breve }),
+      h('ul', {}, c.piatti.map((p) => {
+        const add = h('button', { class: 'add', type: 'button', 'aria-label': 'Aggiungi ' + p.nome + ' alla lista' }, SVG(PLUS));
+        const li = h('li', { class: 'dish' },
+          h('button', { class: 'dish__open', type: 'button', 'aria-haspopup': 'dialog' },
+            h('h3', { text: p.nome }), h('span', { class: 'dish__desc', text: p.desc }),
+            h('span', { class: 'dish__meta' }, h('span', { class: 'dish__price num', text: K.euro(p.prezzo) }), p.tag.map((t) => h('span', { class: 'tag', text: K.tagNames[t] })))),
+          h('div', { class: 'dish__pic' }, K.photo(p, ''), add));
+        li.querySelector('.dish__open').addEventListener('click', (e) => openDish(p, e.currentTarget));
+        add.addEventListener('click', () => { setQ(p.id, (list.get(p.id) || 0) + 1); K.tick(); bump(add); });
+        rows.set(p.id, add);
+        return li;
+      })));
+    secs.append(sec);
+    tabs.push({ c, tab, sec });
+    tab.addEventListener('click', (e) => {
+      e.preventDefault(); lockUntil = performance.now() + 900; setTab(tabs.findIndex((t) => t.c === c));
+      const y = sec.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0) + 1;
+      scrollTo({ top: y, behavior: K.reduced ? 'auto' : 'smooth' });
+    });
+  });
+
+  // la scheda attiva segue lo scroll; l'indicatore scivola sotto il nome
+  let active = -1, lockUntil = 0;
+  function setTab(n) {
+    if (n === active || n < 0) return;
+    active = n;
+    tabs.forEach((t, k) => t.tab.setAttribute('aria-current', String(k === n)));
+    const t = tabs[n].tab;
+    bar.style.transform = 'translateX(' + (t.offsetLeft + 12) + 'px) scaleX(' + Math.max(1, t.offsetWidth - 24) + ')';
+    const row = tabsRow, want = t.offsetLeft - 24;
+    if (want < row.scrollLeft || t.offsetLeft + t.offsetWidth > row.scrollLeft + row.clientWidth) row.scrollTo({ left: want, behavior: K.reduced ? 'auto' : 'smooth' });
+  }
+  function spy() {
+    if (performance.now() < lockUntil) return;
+    const line = $('.tabs').getBoundingClientRect().bottom + 24;
+    let n = 0;
+    tabs.forEach((t, k) => { if (t.sec.getBoundingClientRect().top <= line) n = k; });
+    setTab(n);
+  }
+  let spyQueued = false;
+  addEventListener('scroll', () => { if (!spyQueued) { spyQueued = true; requestAnimationFrame(() => { spyQueued = false; spy(); }); } }, { passive: true });
+  addEventListener('resize', () => { const n = active; active = -1; setTab(n < 0 ? 0 : n); });
+
+  /* ---------- fogli dal basso: aperti, chiusi e trascinati ---------- */
+  function openSheet(d) {
+    if (d.open) return;
+    d.showModal();
+    void d.offsetHeight; // il foglio parte da sotto lo schermo, poi sale
+    d.classList.add('open');
+  }
+  function closeSheet(d) {
+    if (!d.open || d.__closing) return;
+    d.__closing = true;
+    d.classList.remove('open', 'drag'); d.style.transform = '';
+    const done = () => { d.__closing = false; if (!d.classList.contains('open')) d.close(); };
+    if (K.reduced) done(); else setTimeout(done, 460);
+  }
+  document.querySelectorAll('dialog.sheet').forEach((d) => {
+    d.addEventListener('cancel', (e) => { e.preventDefault(); closeSheet(d); });
+    d.addEventListener('click', (e) => { if (e.target === d) closeSheet(d); });
+    d.querySelectorAll('[data-x]').forEach((b) => b.addEventListener('click', () => closeSheet(d)));
+    // trascinare verso il basso chiude; verso l'alto oppone resistenza
+    d.querySelectorAll('[data-grab], [data-grab-too]').forEach((g) => {
+      let y0 = 0, dy = 0, samples = [], on = false;
+      g.addEventListener('pointerdown', (e) => { if (e.button) return; on = true; y0 = e.clientY; dy = 0; samples = [[performance.now(), e.clientY]]; d.classList.add('drag'); g.setPointerCapture(e.pointerId); });
+      g.addEventListener('pointermove', (e) => {
+        if (!on) return;
+        dy = e.clientY - y0; samples.push([performance.now(), e.clientY]); if (samples.length > 6) samples.shift();
+        d.style.transform = 'translateY(' + (dy > 0 ? dy : dy * 0.18).toFixed(1) + 'px)';
+      });
+      const up = () => {
+        if (!on) return; on = false; d.classList.remove('drag');
+        const [t0, a] = samples[0], [t1, b] = samples[samples.length - 1], v = (b - a) / Math.max(1, t1 - t0);
+        if (dy > d.offsetHeight * 0.28 || (v > 0.55 && dy > 24)) closeSheet(d);
+        else d.style.transform = '';
+      };
+      g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up);
+    });
+  });
+
+  /* ---------- il foglio del piatto ---------- */
+  const dish = $('[data-dish]');
+  let cur = null, qty = 1, opener = null;
+  function openDish(p, from) {
+    p = byId.get(p.id) || p; // la versione con la sua portata
+    cur = p; qty = Math.max(1, list.get(p.id) || 1); opener = from;
+    const img = $('[data-s-img]');
+    img.src = K.img(p.foto); img.alt = p.nome + ': ' + p.desc;
+    $('[data-s-cat]').textContent = p.cat.nome;
+    $('[data-s-name]').textContent = p.nome;
+    $('[data-s-desc]').textContent = p.desc;
+    const tags = $('[data-s-tags]'); tags.textContent = '';
+    tags.append(h('span', { class: 'dish__price num', text: K.euro(p.prezzo) }), ...p.tag.map((t) => h('span', { class: 'tag', text: K.tagNames[t] })));
+    dish.querySelector('.scroll').scrollTop = 0;
+    paintDish();
+    openSheet(dish);
+  }
+  function paintDish() {
+    const had = list.get(cur.id) || 0;
+    $('[data-s-q]').textContent = String(qty);
+    $('[data-s-less]').disabled = qty <= 1;
+    $('[data-s-add]').textContent = (had ? 'Aggiorna la lista · ' : 'Aggiungi · ') + K.euro(qty * cur.prezzo);
+  }
+  $('[data-s-less]').addEventListener('click', () => { qty = Math.max(1, qty - 1); paintDish(); });
+  $('[data-s-more]').addEventListener('click', () => { qty = Math.min(99, qty + 1); paintDish(); });
+  $('[data-s-add]').addEventListener('click', () => { setQ(cur.id, qty); K.tick(); closeSheet(dish); bump(rows.get(cur.id)); });
+  dish.addEventListener('close', () => { if (opener && document.contains(opener)) opener.focus({ preventScroll: true }); });
+
+  /* ---------- la lista ---------- */
+  const tray = $('[data-tray]'), listSheet = $('[data-list]');
+  $('[data-tray-btn]').addEventListener('click', () => { paintList(); openSheet(listSheet); });
+  listSheet.addEventListener('close', () => $('[data-tray-btn]').focus({ preventScroll: true }));
+  $('[data-p-less]').addEventListener('click', () => { persone = Math.max(1, persone - 1); save(); paintList(); });
+  $('[data-p-more]').addEventListener('click', () => { persone = Math.min(30, persone + 1); save(); paintList(); });
+  $('[data-l-clear]').addEventListener('click', () => { list.clear(); save(); refresh(); closeSheet(listSheet); });
+
+  const totals = () => { let n = 0, sum = 0; for (const [id, q] of list) { n += q; sum += q * byId.get(id).prezzo; } return { n, sum }; };
+  function paintList() {
+    const box = $('[data-l-items]'); box.textContent = '';
+    for (const [id, q] of list) {
+      const p = byId.get(id);
+      const less = h('button', { type: 'button', 'aria-label': 'Togli un ' + p.nome }, SVG(MINUS));
+      const more = h('button', { type: 'button', 'aria-label': 'Aggiungi un ' + p.nome }, SVG(PLUS));
+      less.addEventListener('click', () => { setQ(id, q - 1); list.size ? paintList() : closeSheet(listSheet); });
+      more.addEventListener('click', () => { setQ(id, q + 1); paintList(); });
+      box.append(h('div', { class: 'l-item' }, h('h3', { text: p.nome }), h('p', { class: 'num', text: K.euro(p.prezzo) + (q > 1 ? ' × ' + q + ' = ' + K.euro(p.prezzo * q) : '') }),
+        h('div', { class: 'stepper', role: 'group', 'aria-label': 'Quantità di ' + p.nome }, less, h('output', { text: String(q) }), more)));
+    }
+    const { sum } = totals(), cov = M.coperto * persone;
+    $('[data-p]').textContent = String(persone);
+    $('[data-p-less]').disabled = persone <= 1;
+    $('[data-l-dishes]').textContent = K.euro2(sum);
+    $('[data-l-cover-label]').textContent = 'Coperto × ' + persone;
+    $('[data-l-cover]').textContent = K.euro2(cov);
+    $('[data-l-total]').textContent = K.euro2(sum + cov);
+    $('[data-l-note]').textContent = M.nota;
+  }
+  function refresh() {
+    for (const [id, btn] of rows) {
+      const q = list.get(id) || 0, p = byId.get(id);
+      btn.classList.toggle('has', q > 0);
+      btn.textContent = '';
+      btn.append(q ? h('b', { text: String(q) }) : SVG(PLUS));
+      btn.setAttribute('aria-label', q ? p.nome + ': ' + q + ' nella lista. Aggiungine un altro' : 'Aggiungi ' + p.nome + ' alla lista');
+    }
+    const { n, sum } = totals();
+    tray.classList.toggle('on', n > 0);
+    $('[data-tray-n]').textContent = String(n);
+    $('[data-tray-sum]').textContent = K.euro2(sum);
+  }
+  function bump(el) {
+    if (K.reduced || !el) return;
+    el.animate([{ transform: 'scale(0.86)' }, { transform: 'scale(1.08)' }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2,.7,.1,1)' });
+    const tb = $('[data-tray-btn]');
+    if (tray.classList.contains('on')) tb.animate([{ transform: 'none' }, { transform: 'translateY(-4px)' }, { transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.2,.7,.1,1)' });
+  }
+
+  refresh();
+  K.bar('qr');
+  setTab(0);
+  K.reveal();
+})();
+</script>
+</body>
+</html>

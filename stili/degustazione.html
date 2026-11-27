@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="it" data-root="..">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e0e">
+<title>Menù: stile Una portata alla volta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;1,6..96,500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/kit.css">
+<style>
+  /* UNA PORTATA ALLA VOLTA: una cornice ferma, ogni passo di scroll serve il piatto successivo.
+     Bodoni Moda / Jost, nero caldo e oro. */
+  :root {
+    --bg: #0c0a08; --surface: #181512; --ink: #ffffff; --muted: #b3ada5; --gold: #c9a45a; --gold-ink: #0c0a08;
+    --m: clamp(16px, 2.2vw, 32px); --gap: clamp(12px, 1.6vw, 24px);
+    --small: 0.9375rem; --body: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);
+    --lead: clamp(1.375rem, 1.1rem + 0.8vw, 2rem); --head: clamp(3rem, 1rem + 5.8vw, 6.75rem);
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  body { background: var(--bg); color: var(--ink); font: 400 var(--body)/1.55 "Jost", system-ui, sans-serif; }
+  .bodoni { font-family: "Bodoni Moda", Didot, serif; font-weight: 500; font-style: italic; letter-spacing: -0.02em; line-height: 0.95; }
+
+  .top { min-height: calc(100svh - 56px); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-content: end; padding: var(--m) var(--m) clamp(40px, 8svh, 96px); position: relative; overflow: hidden; }
+  .top__pic { position: absolute; inset: 0; }
+  .top__pic img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.38); transform: scale(1.04); }
+  .top > *:not(.top__pic) { position: relative; }
+  .top h1 { grid-column: 1 / span 8; font-size: var(--head); }
+  .top__side { grid-column: 9 / span 4; display: grid; gap: 20px; justify-items: start; align-self: end; }
+  .top__side p { font-size: var(--lead); line-height: 1.2; }
+  .btn { display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; background: var(--gold); color: var(--gold-ink); text-decoration: none; font-weight: 500; border: 0; cursor: pointer; transition: transform 0.2s var(--ease), background-color 0.2s; }
+  @media (hover: hover) and (pointer: fine) { .btn:hover { background: #dbb86e; } }
+  .btn:active { transform: scale(0.96); }
+
+  .seq { position: relative; }
+  .seq__stage { position: sticky; top: 0; height: 100svh; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: center; padding: var(--m); }
+  .frame { grid-column: 1 / span 6; position: relative; height: min(76svh, 720px); aspect-ratio: 4 / 5; justify-self: start; overflow: hidden; background: var(--surface); }
+  .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.1); transition: opacity 0.7s, transform 4s var(--ease); }
+  .frame img.on { opacity: 1; transform: scale(1); }
+  .plate { grid-column: 7 / span 6; display: grid; gap: 20px; padding-left: clamp(0px, 3vw, 48px); }
+  .plate__cat { color: var(--gold); font-size: var(--lead); font-family: "Bodoni Moda", Didot, serif; font-style: italic; }
+  .plate h2 { font-size: var(--head); min-height: 1.9em; }
+  .plate h2 span { display: inline-block; }
+  .plate__desc { max-width: 38ch; font-size: var(--lead); line-height: 1.3; font-weight: 400; }
+  .plate__meta { display: flex; gap: 24px; align-items: baseline; }
+  .plate__price { font: 500 var(--lead)/1 "Bodoni Moda", Didot, serif; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .plate__tags { color: var(--muted); font-size: var(--small); }
+  .plate__next { color: var(--muted); font-size: var(--small); }
+  .plate__steps { display: flex; gap: 10px; }
+  .step { min-height: 44px; padding: 0 18px; background: var(--surface); color: var(--ink); border: 0; cursor: pointer; transition: background-color 0.2s, transform 0.2s var(--ease); }
+  @media (hover: hover) and (pointer: fine) { .step:hover { background: #2a251f; } }
+  .step:active { transform: scale(0.96); }
+  .fade { transition: opacity 0.35s; }
+  .fade.out { opacity: 0; }
+
+  .all { padding: clamp(120px, 16svh, 200px) var(--m); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 56px; }
+  .all > h2 { grid-column: 1 / -1; font-size: var(--head); }
+  .all section { grid-column: span 6; }
+  .all h3 { color: var(--gold); font-size: var(--lead); margin-bottom: 14px; }
+  .all li { display: flex; justify-content: space-between; gap: 20px; padding: 8px 0; }
+  .all li span:last-child { font-variant-numeric: tabular-nums; color: var(--gold); }
+  .close { background: var(--gold); color: var(--gold-ink); padding: clamp(64px, 10svh, 120px) var(--m) var(--m); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 28px; }
+  .close__name { grid-column: 1 / -1; font-size: clamp(3rem, 1rem + 8vw, 9rem); }
+  .close p:nth-of-type(2) { grid-column: 1 / span 4; font-size: var(--lead); }
+  .close p:nth-of-type(3) { grid-column: 7 / span 6; max-width: 52ch; }
+
+  @media (max-width: 1100px) { .top h1, .top__side { grid-column: 1 / -1; } .top__side { margin-top: 24px; } }
+  @media (max-width: 760px) {
+    /* la cornice prende lo spazio che resta: su ogni telefono, anche basso, i pulsanti restano a portata di pollice */
+    .seq__stage { top: var(--kb); height: calc(100svh - var(--kb)); grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; align-items: stretch; row-gap: 14px; padding: 12px var(--m) max(14px, env(safe-area-inset-bottom, 0px)); transition: top 0.4s var(--kb-ease), height 0.4s var(--kb-ease); }
+    .frame { grid-column: 1; height: auto; min-height: 0; width: 100%; aspect-ratio: auto; touch-action: pan-y; }
+    .plate { grid-column: 1; gap: 8px; padding-left: 0; }
+    .plate__cat { font-size: 1.125rem; }
+    .plate h2 { font-size: clamp(2rem, 10vw, 2.5rem); min-height: 2em; }
+    .plate__desc { font-size: 1.0625rem; }
+    .plate__meta { gap: 16px; }
+    .plate__steps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px; }
+    .step { min-height: 48px; padding: 0 10px; font-size: 1rem; }
+    .all li { padding: 10px 0; }
+    .all section, .close p:nth-of-type(2), .close p:nth-of-type(3) { grid-column: 1 / -1; }
+    .close { padding-bottom: max(var(--m), env(safe-area-inset-bottom, 0px)); }
+  }
+  @media (prefers-reduced-motion: reduce) { .frame img { transition: opacity 0.3s; transform: none; } .btn, .step { transition: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#portate">Salta al menù</a>
+<main>
+  <header class="top">
+    <figure class="top__pic"><img src="../assets/risotto.jpg" alt="Un piatto di risotto allo zafferano" width="1400" height="1050"></figure>
+    <h1 class="bodoni" data-name data-rise></h1>
+    <div class="top__side">
+      <p data-line data-rise></p>
+      <a class="btn" href="#portate" data-rise>Comincia dalla prima portata</a>
+    </div>
+  </header>
+  <section class="seq" id="portate" aria-label="Il menù, una portata alla volta" data-seq>
+    <div class="seq__stage">
+      <figure class="frame" data-frame></figure>
+      <div class="plate" aria-live="polite">
+        <p class="plate__cat fade" data-cat></p>
+        <h2 class="bodoni" data-dish></h2>
+        <p class="plate__desc fade" data-desc></p>
+        <div class="plate__meta fade"><p class="plate__price" data-price></p><p class="plate__tags" data-tags></p></div>
+        <p class="plate__next fade" data-next></p>
+        <div class="plate__steps"><button class="step" type="button" data-prev>Portata precedente</button><button class="step" type="button" data-nextbtn>Portata successiva</button></div>
+      </div>
+    </div>
+  </section>
+  <section class="all" aria-labelledby="all-h">
+    <h2 class="bodoni" id="all-h" data-rise>Il menù completo</h2>
+  </section>
+</main>
+<footer class="close">
+  <p class="close__name bodoni" data-name></p>
+  <p data-cover></p>
+  <p data-note></p>
+</footer>
+<noscript><p style="padding:24px">Questo menù si compone con JavaScript.</p></noscript>
+<script src="../js/menu.js"></script>
+<script src="../api/menu.js?stile=degustazione"></script>
+<script src="../js/kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  const M = window.MENU, h = K.h, $ = (s) => document.querySelector(s);
+  document.querySelectorAll('[data-name]').forEach((e) => (e.textContent = M.ristorante));
+  $('[data-line]').textContent = M.stagione + '. Sedici piatti, serviti uno alla volta.';
+  $('[data-cover]').textContent = 'Coperto ' + K.euro2(M.coperto);
+  $('[data-note]').textContent = M.nota;
+
+  const all = K.all(), seq = $('[data-seq]'), frame = $('[data-frame]');
+  const imgs = all.map((p) => { const i = K.photo(p, ''); frame.append(i); return i; });
+  // ogni piatto ha 70svh di scroll
+  const STEP = 0.7;
+  seq.style.height = 'calc(' + (all.length * STEP * 100) + 'svh + 100svh)';
+
+  const dishEl = $('[data-dish]'), fades = document.querySelectorAll('.plate .fade');
+  let cur = -1, swapT = 0;
+  function show(n) {
+    if (n === cur) return;
+    const first = cur < 0;
+    if (cur >= 0) imgs[cur].classList.remove('on');
+    cur = n; imgs[n].classList.add('on');
+    const p = all[n], next = all[n + 1];
+    clearTimeout(swapT);
+    fades.forEach((f) => f.classList.add('out'));
+    swapT = setTimeout(() => {
+      $('[data-cat]').textContent = p.cat.nome;
+      $('[data-desc]').textContent = p.desc;
+      $('[data-price]').textContent = K.euro(p.prezzo);
+      $('[data-tags]').textContent = p.tag.map((t) => K.tagNames[t]).join(' · ');
+      $('[data-next]').textContent = next ? 'Poi: ' + next.nome : 'Il pasto finisce qui. Buon caffè.';
+      dishEl.textContent = p.nome;
+      const letters = K.split(dishEl);
+      if (!K.reduced && !first) letters.forEach((s, i) => s.animate([{ transform: 'translateY(0.5em)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 650, delay: i * 22, easing: 'cubic-bezier(.2,.7,.1,1)', fill: 'backwards' }));
+      fades.forEach((f) => f.classList.remove('out'));
+    }, first ? 0 : 240);
+  }
+  const idx = () => K.clamp(Math.floor(K.progress(seq) * all.length), 0, all.length - 1);
+  K.add(seq, () => show(idx()));
+  addEventListener('scroll', () => show(idx()), { passive: true });
+  const go = (d) => {
+    const n = K.clamp(cur + d, 0, all.length - 1);
+    const top = seq.getBoundingClientRect().top + scrollY + (n + 0.5) * (seq.offsetHeight - innerHeight) / all.length;
+    scrollTo({ top, behavior: K.reduced ? 'auto' : 'smooth' });
+  };
+  $('[data-prev]').addEventListener('click', () => go(-1));
+  $('[data-nextbtn]').addEventListener('click', () => go(1));
+  // col dito: uno swipe orizzontale sulla foto serve la portata dopo (o quella prima)
+  let sx = 0, sy = 0, st = 0;
+  frame.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; st = performance.now(); });
+  frame.addEventListener('pointerup', (e) => {
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (performance.now() - st < 700 && Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) { K.tick(); go(dx < 0 ? 1 : -1); }
+  });
+  show(0);
+
+  const box = document.querySelector('.all');
+  M.categorie.forEach((c) => box.append(h('section', { 'aria-labelledby': 'a-' + c.id },
+    h('h3', { class: 'bodoni', id: 'a-' + c.id, text: c.nome }),
+    h('ul', {}, c.piatti.map((p) => h('li', {}, h('span', { text: p.nome }), h('span', { text: K.euro(p.prezzo) })))))));
+  K.bar('degustazione');
+  K.reveal();
+})();
+</script>
+</body>
+</html>

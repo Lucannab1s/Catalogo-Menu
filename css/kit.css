@@ -1,0 +1,81 @@
+/* Base condivisa dagli stili del catalogo: reset, entrate, transizioni tra pagine e la barra del catalogo.
+   Ogni stile aggiunge i suoi caratteri e i suoi colori nella propria pagina. */
+
+*, *::before, *::after { box-sizing: border-box; }
+/* --kb: altezza della barra del catalogo quando è visibile; le parti fisse degli stili ci si appoggiano sotto */
+:root { --kb: 0px; --kb-ease: cubic-bezier(0.2, 0.7, 0.1, 1); }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+img, canvas, video { display: block; max-width: 100%; }
+h1, h2, h3, p, figure, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+button { font: inherit; color: inherit; }
+/* telefono: il tocco risponde subito (niente attesa del doppio tocco) e un dito tenuto premuto non seleziona le etichette */
+a, button, select, label, summary, [role="button"] { touch-action: manipulation; }
+button, [role="button"], .kb a { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* iOS ingrandisce la pagina se un campo ha il testo sotto i 16px */
+@media (pointer: coarse) { input, select, textarea { font-size: max(16px, 1em) !important; } }
+::selection { background: color-mix(in srgb, currentColor 22%, transparent); }
+a { color: inherit; }
+:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.skip { position: fixed; left: 16px; top: -80px; z-index: 100; padding: 12px 16px; background: #000; color: #fff; text-decoration: none; }
+.skip:focus { top: 16px; }
+
+/* passaggio animato tra le pagine del catalogo (View Transitions tra documenti) */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: kb-out 0.4s cubic-bezier(0.65, 0, 0.35, 1) both; }
+::view-transition-new(root) { animation: kb-in 0.6s cubic-bezier(0.2, 0.7, 0.1, 1) both; }
+@keyframes kb-out { to { opacity: 0; transform: scale(0.97); } }
+@keyframes kb-in { from { opacity: 0; transform: translateY(48px); } }
+
+/* entrate a cascata: titolo, testo, immagine */
+@media (prefers-reduced-motion: no-preference) {
+  [data-rise] { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.1, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.1, 1); transition-delay: var(--d, 0ms); }
+  [data-rise].in { opacity: 1; transform: none; }
+}
+
+/* barra del catalogo: piatta, in cima e nel flusso della pagina; si ritira scendendo e torna risalendo */
+.kb {
+  position: sticky; top: 0; z-index: 90;
+  display: flex; align-items: center; gap: 20px;
+  height: 56px; padding: 0 max(clamp(16px, 2.2vw, 32px), env(safe-area-inset-right, 0px)) 0 max(clamp(16px, 2.2vw, 32px), env(safe-area-inset-left, 0px));
+  background: #0e0e0e; color: #f2f2f2; font-size: 15px; line-height: 1.2;
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.1, 1);
+}
+.kb.off { transform: translateY(-100%); }
+.kb a { text-decoration: none; }
+.kb__back { font-weight: 600; white-space: nowrap; }
+.kb__name { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 12px; white-space: nowrap; overflow: hidden; }
+.kb__name b { font-weight: 600; }
+.kb__name span { color: #b5b5b5; overflow: hidden; text-overflow: ellipsis; }
+.kb__step { white-space: nowrap; padding: 8px 4px; transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.1, 1); }
+@media (hover: hover) and (pointer: fine) {
+  .kb__step:hover { transform: translateX(3px); }
+  .kb__step:first-of-type:hover { transform: translateX(-3px); }
+}
+.kb__fav {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px;
+  border: 0; border-radius: 0; background: #2a2a2a; color: #f2f2f2; cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+.kb__fav:active { transform: scale(0.95); transition-duration: 0.1s; }
+.kb__back:active, .kb__step:active { opacity: 0.6; }
+.kb__fav[aria-pressed="true"] { background: #f2f2f2; color: #0e0e0e; }
+.anteprima .kb { display: none; }
+.anteprima { scrollbar-width: none; }
+.anteprima::-webkit-scrollbar { display: none; }
+
+@media (max-width: 760px) {
+  .kb { gap: 4px; font-size: 15px; }
+  .kb__name { padding-left: 6px; }
+  .kb__name span, .kb__step span { display: none; }
+  /* bersagli da dito: almeno 44 x 44 */
+  .kb__back, .kb__step { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 6px; }
+  .kb__back { margin-left: -6px; }
+  .kb__fav { min-height: 44px; margin-left: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+  .kb, .kb__step, .kb__fav { transition: none; }
+}

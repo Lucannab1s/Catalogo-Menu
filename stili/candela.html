@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="it" data-root="..">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e0e">
+<title>Menù: stile A lume di candela</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/kit.css">
+<style>
+  /* A LUME DI CANDELA: la pagina è in penombra, una fiamma calda segue il puntatore (o resta dove legge il pollice)
+     e illumina il menù. La luce è un solo livello grande spostato con transform: niente ridisegni a ogni fotogramma.
+     IM Fell English / Spectral, nero fumo, crema e cera. */
+  :root {
+    --bg: #0d0a08; --ink: #f2e7d3; --muted: #cbb995; --wax: #e9b44c; --wax-ink: #1a1007; --line: rgba(242, 231, 211, 0.22);
+    --m: clamp(20px, 4vw, 48px); --col: 36rem;
+    --body: clamp(1.0625rem, 1rem + 0.25vw, 1.25rem); --lead: clamp(1.375rem, 1.1rem + 0.9vw, 2rem);
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  body { background: var(--bg); color: var(--ink); font: 300 var(--body)/1.6 "Spectral", Georgia, serif; }
+  ::selection { background: var(--wax); color: var(--wax-ink); }
+  .fell { font-family: "IM Fell English", Georgia, serif; font-weight: 400; letter-spacing: 0; }
+
+  main, .close { position: relative; z-index: 1; }
+  .card { width: min(100%, var(--col)); margin: 0 auto; padding: 0 var(--m); text-align: center; }
+
+  .top { min-height: calc(100svh - 56px); display: grid; align-content: center; justify-items: center; gap: 22px; padding-block: 12svh 10svh; }
+  .top h1 { font-size: clamp(3rem, 1.2rem + 7vw, 6rem); line-height: 0.95; text-wrap: balance; }
+  .top__line { max-width: 30ch; }
+  .rule { width: 120px; height: 18px; color: var(--wax); }
+  .rule path { fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; }
+  .top__hint { font-size: 0.9375rem; font-style: italic; color: var(--muted); }
+
+  .course { padding-block: 10svh 4svh; }
+  .course h2 { font-size: clamp(2.5rem, 1.4rem + 4vw, 4.25rem); line-height: 1; font-style: italic; }
+  .course__brief { margin: 8px 0 34px; color: var(--muted); font-style: italic; }
+  .dish { position: relative; padding: 18px 0; }
+  /* sul computer, nei margini al buio, le foto dei piatti: le scopre solo la fiamma */
+  .dish__pic { display: none; }
+  @media (min-width: 1200px) {
+    .dish__pic { display: block; position: absolute; top: 10px; width: clamp(160px, 14vw, 230px); aspect-ratio: 4 / 5; object-fit: cover; filter: sepia(0.2) saturate(0.95) brightness(0.92); }
+    .dish:nth-child(odd) .dish__pic { left: calc(100% + clamp(48px, 5vw, 96px)); rotate: 2deg; }
+    .dish:nth-child(even) .dish__pic { right: calc(100% + clamp(48px, 5vw, 96px)); rotate: -2deg; }
+  }
+  .dish + .dish { border-top: 1px solid var(--line); }
+  .dish__row { display: flex; align-items: baseline; gap: 12px; }
+  .dish h3 { font: 400 var(--lead)/1.15 "IM Fell English", Georgia, serif; text-align: left; }
+  .dish__dots { flex: 1; min-width: 24px; border-bottom: 1px dotted rgba(242, 231, 211, 0.45); transform: translateY(-0.3em); }
+  .dish__price { font: 400 var(--lead)/1 "IM Fell English", Georgia, serif; color: var(--wax); font-variant-numeric: oldstyle-nums; white-space: nowrap; }
+  .dish p { margin-top: 6px; text-align: left; max-width: 48ch; }
+  .dish__tags { font-style: italic; color: var(--muted); font-size: 0.9375rem; }
+
+  .close { margin-top: 12svh; padding: 14svh var(--m) max(var(--m), env(safe-area-inset-bottom, 0px)); text-align: center; display: grid; gap: 18px; justify-items: center; border-top: 1px solid var(--line); }
+  .close__name { font-size: clamp(2.5rem, 1.2rem + 5vw, 5rem); line-height: 1; font-style: italic; }
+  .close p:not(.close__name) { max-width: 46ch; }
+
+  /* il buio e la fiamma: due livelli fissi, tre volte lo schermo, spostati con transform */
+  .dark, .glow { position: fixed; left: 0; top: 0; z-index: 2; width: 300vmax; height: 300vmax; margin: -150vmax 0 0 -150vmax; pointer-events: none; will-change: transform; transition: opacity 0.9s var(--ease); }
+  .dark { background: radial-gradient(circle at 50% 50%, rgba(13, 10, 8, 0) 0, rgba(13, 10, 8, 0) calc(var(--r) * 0.45), rgba(13, 10, 8, 0.55) calc(var(--r) * 0.85), rgba(13, 10, 8, 0.88) calc(var(--r) * 1.35), rgba(13, 10, 8, 0.93) 100%); }
+  .glow { background: radial-gradient(circle at 50% 50%, rgba(255, 170, 80, 0.16) 0, rgba(255, 140, 60, 0.07) calc(var(--r) * 0.6), rgba(255, 140, 60, 0) calc(var(--r) * 1.1)); mix-blend-mode: screen; }
+  :root { --r: min(42vmax, 520px); }
+  .lit .dark, .lit .glow { opacity: 0 !important; }
+
+  .lamp { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); z-index: 5; display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 20px 0 16px; border: 1px solid rgba(233, 180, 76, 0.5); border-radius: 999px; background: rgba(13, 10, 8, 0.82); color: var(--ink); font: 400 1rem/1 "Spectral", Georgia, serif; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: transform 0.14s var(--ease), background-color 0.3s, color 0.3s; }
+  .lamp:active { transform: scale(0.96); }
+  .lamp svg { width: 18px; height: 22px; }
+  .lamp .flame { fill: var(--wax); }
+  .lamp[aria-pressed="true"] { background: var(--wax); color: var(--wax-ink); border-color: var(--wax); }
+  .lamp[aria-pressed="true"] .flame { fill: var(--wax-ink); }
+  @media (hover: hover) and (pointer: fine) { .lamp:hover { border-color: var(--wax); } }
+
+  @media (max-width: 760px) {
+    :root { --r: min(54vmax, 460px); }
+    .top { padding-top: 8svh; }
+    .dish__row { flex-wrap: wrap; }
+    .dish__dots { min-width: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .dark, .glow, .lamp { transition: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#menu">Salta al menù</a>
+<main>
+  <header class="top card">
+    <h1 class="fell" data-name data-rise></h1>
+    <svg class="rule" viewBox="0 0 120 18" aria-hidden="true" data-rise><path d="M2 9h40M78 9h40M60 2c-6 4-6 10 0 14 6-4 6-10 0-14z"/></svg>
+    <p class="top__line" data-line data-rise></p>
+    <p class="top__hint" data-hint data-rise></p>
+  </header>
+  <div id="menu" data-courses></div>
+</main>
+<footer class="close">
+  <p class="close__name fell" data-name></p>
+  <p data-cover></p>
+  <p data-note></p>
+</footer>
+<div class="dark" data-dark aria-hidden="true"></div>
+<div class="glow" data-glow aria-hidden="true"></div>
+<button class="lamp" type="button" aria-pressed="false" data-lamp>
+  <svg viewBox="0 0 18 22" aria-hidden="true"><path class="flame" d="M9 1c3 4 6 7 6 11a6 6 0 0 1-12 0c0-2.4 1.3-4.2 2.6-5.6.3 1.6 1 2.8 2.2 3.4C7.4 6.6 7.8 3.7 9 1z"/></svg>
+  <span data-lamp-text>Accendi la luce</span>
+</button>
+<noscript><p style="padding:24px">Questo menù si compone con JavaScript.</p></noscript>
+<script src="../js/menu.js"></script>
+<script src="../api/menu.js?stile=candela"></script>
+<script src="../js/kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  const M = window.MENU, h = K.h, $ = (s) => document.querySelector(s);
+  document.querySelectorAll('[data-name]').forEach((e) => (e.textContent = M.ristorante));
+  $('[data-line]').textContent = M.stagione + '. ' + M.luogo + '. ' + K.all().length + ' piatti da leggere piano, alla luce di una candela.';
+  $('[data-hint]').textContent = K.coarse ? 'La luce resta dove legge il pollice: tocca la pagina per spostarla.' : 'Muovi il puntatore: la fiamma lo segue.';
+  $('[data-cover]').textContent = 'Coperto ' + K.euro2(M.coperto) + ' a persona';
+  $('[data-note]').textContent = M.nota;
+
+  const host = $('[data-courses]');
+  M.categorie.forEach((c) => host.append(h('section', { class: 'course card', id: c.id, 'aria-labelledby': 'h-' + c.id },
+    h('h2', { class: 'fell', id: 'h-' + c.id, 'data-rise': true, text: c.nome }),
+    h('p', { class: 'course__brief', 'data-rise': true, text: c.breve }),
+    h('ul', {}, c.piatti.map((p) => h('li', { class: 'dish', 'data-rise': true },
+      h('div', { class: 'dish__row' }, h('h3', { text: p.nome }), h('span', { class: 'dish__dots', 'aria-hidden': 'true' }), h('span', { class: 'dish__price', text: K.euro(p.prezzo) })),
+      h('p', { text: p.desc }),
+      p.tag.length ? h('p', { class: 'dish__tags', text: p.tag.map((t) => K.tagNames[t]).join(' · ') }) : null,
+      K.photo(p, 'dish__pic', { loading: 'lazy', alt: '' })))))));
+
+  /* ---------- la fiamma ---------- */
+  const dark = $('[data-dark]'), glow = $('[data-glow]'), lamp = $('[data-lamp]');
+  const html = document.documentElement;
+  // con il movimento ridotto la luce è accesa fin dall'inizio, e la scelta resta per la visita
+  let lit = K.reduced;
+  try { if (sessionStorage.getItem('candela-luce') === '1') lit = true; } catch (e) { /* niente */ }
+  function setLit(v) {
+    lit = v; html.classList.toggle('lit', v);
+    lamp.setAttribute('aria-pressed', String(v));
+    $('[data-lamp-text]').textContent = v ? 'Spegni la luce' : 'Accendi la luce';
+    try { sessionStorage.setItem('candela-luce', v ? '1' : '0'); } catch (e) { /* niente */ }
+  }
+  lamp.addEventListener('click', () => setLit(!lit));
+  setLit(lit);
+
+  // dove sta la fiamma: insegue il puntatore con una molla morbida; senza puntatore riposa dove si legge
+  const rest = () => ({ x: innerWidth / 2, y: innerHeight * (K.isPhone() ? 0.46 : 0.5) });
+  const pos = rest(), vel = { x: 0, y: 0 };
+  dark.style.transform = glow.style.transform = 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)';
+  let tapAt = 0, tap = null;
+  addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !e.target.closest('button, a')) { tap = { x: e.clientX, y: e.clientY }; tapAt = performance.now(); } }, { passive: true });
+  K.add(null, (f) => {
+    if (lit) return;
+    const now = performance.now(), t = f.time;
+    const mouse = !K.coarse && K.recent(4000);
+    let goal = mouse ? { x: K.pointer.x, y: K.pointer.y } : (tap && now - tapAt < 5000 ? tap : rest());
+    if (!mouse && !(tap && now - tapAt < 5000)) goal = { x: goal.x + Math.sin(t * 0.35) * innerWidth * 0.04, y: goal.y + Math.sin(t * 0.23) * innerHeight * 0.02 };
+    const k = K.reduced ? 1 : 0.06;
+    vel.x = (vel.x + (goal.x - pos.x) * k) * 0.78; vel.y = (vel.y + (goal.y - pos.y) * k) * 0.78;
+    pos.x += vel.x; pos.y += vel.y;
+    // il tremolio della fiamma: due onde che non si ripetono mai uguali
+    const flick = 1 + (Math.sin(t * 9.1) * 0.012 + Math.sin(t * 13.7 + 1.3) * 0.009 + Math.sin(t * 2.3) * 0.02);
+    const tf = 'translate3d(' + pos.x.toFixed(1) + 'px,' + pos.y.toFixed(1) + 'px,0) scale(' + flick.toFixed(4) + ')';
+    dark.style.transform = tf;
+    glow.style.transform = tf;
+    glow.style.opacity = (0.85 + Math.sin(t * 7.3) * 0.08 + Math.sin(t * 17.1) * 0.05).toFixed(3);
+  });
+
+  K.bar('candela');
+  K.reveal();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="it" data-root="..">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e0e">
+<title>Menù: stile Sulla tovaglia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/kit.css">
+<style>
+  /* SULLA TOVAGLIA: le foto dei piatti sparse su una tovaglia vista dall'alto. Si spostano con inerzia e molle
+     (col mouse subito, col dito tenendo premuto), si aprono al tocco. Familjen Grotesk / Newsreader,
+     lino verde bottiglia, carta da stampa e senape. */
+  :root {
+    --cloth: #2e4a3a; --cloth-ink: #f1ecdf; --muted: #c7d1c0; --paper: #f7f5ef; --ink: #1b2620; --ink-muted: #4f5c53; --mustard: #f0c04a;
+    --m: clamp(16px, 2.2vw, 32px); --gap: clamp(12px, 1.6vw, 24px);
+    --body: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem); --lead: clamp(1.375rem, 1.1rem + 0.8vw, 2rem);
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  body {
+    background-color: var(--cloth); color: var(--cloth-ink); font: 400 var(--body)/1.5 "Newsreader", Georgia, serif;
+    /* la trama del lino: due righe sottili incrociate, disegnate una volta sola */
+    background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 4px), repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.07) 0 1px, transparent 1px 3px);
+  }
+  ::selection { background: var(--mustard); color: var(--ink); }
+  .fg { font-family: "Familjen Grotesk", system-ui, sans-serif; font-weight: 700; letter-spacing: -0.035em; line-height: 0.92; }
+
+  .top { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 20px; align-items: end; padding: clamp(48px, 10svh, 120px) var(--m) clamp(24px, 4svh, 48px); }
+  .top h1 { grid-column: 1 / span 8; font-size: clamp(3rem, 1rem + 7vw, 8rem); }
+  .top__side { grid-column: 9 / span 4; display: grid; gap: 12px; }
+  .top__line { font-size: var(--lead); line-height: 1.2; font-style: italic; }
+  .top__hint { color: var(--muted); }
+  .jump { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 26px; margin-top: 12px; }
+  .jump a { display: inline-flex; align-items: center; min-height: 48px; font: 500 var(--lead)/1 "Familjen Grotesk", system-ui, sans-serif; text-decoration: none; }
+  @media (hover: hover) and (pointer: fine) { .jump a:hover { color: var(--mustard); } }
+
+  .table { padding: clamp(48px, 8svh, 96px) var(--m) 0; }
+  .table__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 18px; }
+  .table h2 { font-size: clamp(2.75rem, 1rem + 4.6vw, 5.5rem); }
+  .table__brief { font-style: italic; color: var(--muted); margin-top: 6px; }
+  .tidy { min-height: 44px; padding: 0 18px; border: 1px solid rgba(241, 236, 223, 0.45); border-radius: 999px; background: none; color: var(--cloth-ink); font: 500 1rem/1 "Familjen Grotesk", system-ui, sans-serif; cursor: pointer; transition: transform 0.14s var(--ease), background-color 0.2s, color 0.2s, opacity 0.3s; }
+  .tidy:active { transform: scale(0.96); }
+  .tidy[hidden] { display: inline-flex; visibility: hidden; opacity: 0; }
+  @media (hover: hover) and (pointer: fine) { .tidy:hover { background: var(--cloth-ink); color: var(--ink); } }
+
+  .cloth { position: relative; touch-action: pan-y; }
+  .print { position: absolute; left: 0; top: 0; display: grid; grid-template-rows: auto 1fr; gap: 0; width: var(--w); padding: 8px 8px 0; border: 0; border-radius: 3px; background: var(--paper); color: var(--ink); text-align: left; cursor: grab; will-change: transform; touch-action: pan-y; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 10px 22px -10px rgba(0, 0, 0, 0.55); }
+  .print::before { content: ''; position: absolute; inset: 0; border-radius: 3px; box-shadow: 0 34px 50px -14px rgba(0, 0, 0, 0.6); opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+  .print { opacity: 0; visibility: hidden; transition: opacity 0.35s, visibility 0s 0.35s; }
+  .print.in { opacity: 1; visibility: visible; transition: opacity 0.35s, visibility 0s; }
+  .print.lift { cursor: grabbing; }
+  .print.lift::before { opacity: 1; }
+  .print img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 1px; pointer-events: none; -webkit-user-drag: none; }
+  .print__cap { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 2px 10px; padding: 10px 4px 12px; }
+  .print__name { font: 600 1.0625rem/1.15 "Newsreader", Georgia, serif; }
+  .print__price { font: 700 1rem/1 "Familjen Grotesk", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  .print__tags { grid-column: 1 / -1; font-size: 0.875rem; font-style: italic; color: var(--ink-muted); }
+
+  /* il piatto aperto: cresce dalla foto */
+  dialog.look { width: min(100% - 32px, 920px); max-width: none; max-height: calc(100dvh - 32px); padding: 0; border: 0; border-radius: 4px; background: var(--paper); color: var(--ink); overflow: auto; overscroll-behavior: contain; }
+  dialog.look::backdrop { background: rgba(10, 20, 14, 0.62); }
+  .look__in { display: grid; grid-template-columns: 1.1fr 1fr; }
+  .look__pic img { width: 100%; height: 100%; min-height: 320px; object-fit: cover; }
+  .look__body { display: grid; align-content: start; gap: 14px; padding: clamp(24px, 3vw, 40px); }
+  .look__cat { font: 500 1rem/1 "Familjen Grotesk", system-ui, sans-serif; color: var(--ink-muted); }
+  .look h2 { font-size: clamp(2.25rem, 1.2rem + 2.6vw, 3.5rem); color: var(--ink); }
+  .look__price { font: 700 var(--lead)/1 "Familjen Grotesk", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  .look__tags { font-style: italic; color: var(--ink-muted); }
+  .look__x { position: absolute; right: 10px; top: 10px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: var(--paper); color: var(--ink); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+  .look__x svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .look__x:active { transform: scale(0.92); }
+
+  .close { margin-top: clamp(96px, 14svh, 180px); background: var(--paper); color: var(--ink); padding: clamp(64px, 10svh, 120px) var(--m) max(var(--m), env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 28px; }
+  .close__name { grid-column: 1 / -1; font-size: clamp(3rem, 1rem + 9vw, 10rem); }
+  .close p:nth-of-type(2) { grid-column: 1 / span 4; font: 500 var(--lead)/1.2 "Familjen Grotesk", system-ui, sans-serif; }
+  .close p:nth-of-type(3) { grid-column: 7 / span 6; max-width: 52ch; }
+
+  @media (max-width: 1100px) { .top h1, .top__side { grid-column: 1 / -1; } }
+  @media (max-width: 760px) {
+    .look__in { grid-template-columns: 1fr; }
+    .look__pic img { min-height: 0; aspect-ratio: 4 / 3; height: auto; }
+    .print { padding: 6px 6px 0; }
+    .print__cap { grid-template-columns: 1fr; padding: 8px 2px 10px; }
+    .print__name { font-size: 1rem; }
+    .print__tags { display: none; }
+    .close p:nth-of-type(2), .close p:nth-of-type(3) { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tidy, .print::before { transition: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#menu">Salta al menù</a>
+<main>
+  <header class="top">
+    <h1 class="fg" data-name data-rise></h1>
+    <div class="top__side">
+      <p class="top__line" data-line data-rise></p>
+      <p class="top__hint" data-hint data-rise></p>
+    </div>
+    <nav class="jump" aria-label="Portate" data-jump></nav>
+  </header>
+  <div id="menu" data-tables></div>
+</main>
+<footer class="close">
+  <p class="close__name fg" data-name></p>
+  <p data-cover></p>
+  <p data-note></p>
+</footer>
+<dialog class="look" data-look aria-labelledby="look-name">
+  <div class="look__in">
+    <figure class="look__pic"><img data-l-img src="../assets/pane-pomodoro.jpg" alt=""></figure>
+    <div class="look__body">
+      <p class="look__cat" data-l-cat></p>
+      <h2 class="fg" id="look-name" data-l-name></h2>
+      <p data-l-desc></p>
+      <p class="look__tags" data-l-tags></p>
+      <p class="look__price" data-l-price></p>
+    </div>
+  </div>
+  <button class="look__x" type="button" data-l-x aria-label="Rimetti il piatto sul tavolo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</dialog>
+<noscript><p style="padding:24px">Questo menù si compone con JavaScript.</p></noscript>
+<script src="../js/menu.js"></script>
+<script src="../api/menu.js?stile=tovaglia"></script>
+<script src="../js/kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  const M = window.MENU, h = K.h, $ = (s) => document.querySelector(s);
+  document.querySelectorAll('[data-name]').forEach((e) => (e.textContent = M.ristorante));
+  $('[data-line]').textContent = M.stagione + '. ' + M.luogo + '.';
+  $('[data-hint]').textContent = K.coarse ? 'Tieni premuto un piatto per spostarlo sul tavolo; toccalo per leggerlo.' : 'Trascina i piatti come foto sul tavolo; cliccane uno per leggerlo.';
+  $('[data-cover]').textContent = 'Coperto ' + K.euro2(M.coperto) + ' a persona';
+  $('[data-note]').textContent = M.nota;
+
+  // un caso che è sempre lo stesso per ogni piatto: la tavola si apparecchia uguale a ogni visita
+  const seed = (s) => { let v = 7; for (const ch of s) v = (v * 31 + ch.charCodeAt(0)) | 0; return (k) => { const x = Math.sin(v * 0.0001 + k * 12.9898) * 43758.5453; return x - Math.floor(x); }; };
+
+  const jump = $('[data-jump]'), host = $('[data-tables]'), tables = [];
+  let z = 10;
+  M.categorie.forEach((c) => {
+    jump.append(h('a', { href: '#' + c.id, text: c.nome }));
+    const cloth = h('div', { class: 'cloth' });
+    const tidy = h('button', { class: 'tidy', type: 'button', hidden: true, text: 'Rimetti in ordine' });
+    host.append(h('section', { class: 'table', id: c.id, 'aria-labelledby': 'h-' + c.id },
+      h('div', { class: 'table__head' }, h('div', {}, h('h2', { class: 'fg', id: 'h-' + c.id, 'data-rise': true, text: c.nome }), h('p', { class: 'table__brief', 'data-rise': true, text: c.breve })), tidy),
+      cloth));
+    const cards = c.piatti.map((p) => {
+      const el = h('button', { class: 'print', type: 'button', 'aria-haspopup': 'dialog', 'aria-label': p.nome + ', ' + K.euro(p.prezzo) + '. Apri il piatto' },
+        K.photo(p, '', { alt: '', draggable: 'false' }),
+        h('span', { class: 'print__cap' }, h('span', { class: 'print__name', text: p.nome }), h('span', { class: 'print__price', text: K.euro(p.prezzo) }),
+          p.tag.length ? h('span', { class: 'print__tags', text: p.tag.map((t) => K.tagNames[t]).join(' · ') }) : null));
+      cloth.append(el);
+      return { el, p: Object.assign({ cat: c }, p), rnd: seed(p.id), x: 0, y: 0, r: 0, vx: 0, vy: 0, vr: 0, rest: 0, home: { x: 0, y: 0, r: 0 }, free: false, drag: false, dealt: K.reduced, last: '' };
+    });
+    const T = { c, cloth, tidy, cards, W: 0, H: 0, cw: 0, ch: 0, awake: true };
+    tables.push(T);
+    tidy.addEventListener('click', () => { cards.forEach((k) => { k.free = false; }); tidy.hidden = true; T.awake = true; });
+    cards.forEach((k) => bind(T, k));
+    K.add(cloth, () => step(T));
+  });
+
+  /* ---------- dove stanno i piatti: una griglia larga, mossa un po' a caso ---------- */
+  function layout(T) {
+    const W = T.cloth.clientWidth, cols = W >= 1100 ? 4 : W >= 700 ? 3 : 2;
+    const cellW = W / cols, cw = Math.min(310, cellW * (cols === 2 ? 0.9 : 0.8));
+    T.cloth.style.setProperty('--w', cw + 'px');
+    const ch = T.cards[0] ? T.cards[0].el.offsetHeight : cw * 1.25;
+    const cellH = cols === 2 ? ch + 16 : ch * 0.92;
+    const rows = Math.ceil(T.cards.length / cols);
+    T.W = W; T.cw = cw; T.ch = ch; T.H = rows * cellH + ch * 0.18;
+    T.cloth.style.height = T.H + 'px';
+    T.cards.forEach((k, i) => {
+      const col = i % cols, row = Math.floor(i / cols), j = cols === 2 ? 0.06 : 0.12;
+      const x = col * cellW + (cellW - cw) / 2 + (k.rnd(1) - 0.5) * cellW * j;
+      const y = row * cellH + (k.rnd(2) - 0.5) * (cols === 2 ? 12 : 26) + ch * 0.06;
+      k.home = { x: K.clamp(x, 0, W - cw), y, r: (k.rnd(3) - 0.5) * (cols === 2 ? 10 : 14) };
+      if (!k.free) { k.rest = k.home.r; }
+      else { k.x = K.clamp(k.x, -cw * 0.25, W - cw * 0.75); k.y = K.clamp(k.y, -ch * 0.2, T.H - ch * 0.8); }
+    });
+    T.awake = true;
+  }
+
+  /* ---------- un battito per tovaglia: molle verso casa, oppure inerzia dopo il lancio ---------- */
+  function step(T) {
+    if (!T.awake) return;
+    let moving = false;
+    for (const k of T.cards) {
+      if (k.drag) { paint(k, 1.05); moving = true; continue; }
+      if (!k.dealt) continue;
+      if (!k.free) {
+        // molla verso il suo posto
+        k.vx = (k.vx + (k.home.x - k.x) * 0.1) * 0.76; k.vy = (k.vy + (k.home.y - k.y) * 0.1) * 0.76;
+        k.vr = (k.vr + (k.home.r - k.r) * 0.1) * 0.74;
+      } else {
+        // scivola sul lino e si ferma; ai bordi rimbalza piano
+        k.vx *= 0.9; k.vy *= 0.9; k.vr = (k.vr + (k.rest - k.r) * 0.08) * 0.78;
+        const minX = -T.cw * 0.25, maxX = T.W - T.cw * 0.75, minY = -T.ch * 0.2, maxY = T.H - T.ch * 0.8;
+        if (k.x < minX) { k.x = minX; k.vx = Math.abs(k.vx) * 0.4; } if (k.x > maxX) { k.x = maxX; k.vx = -Math.abs(k.vx) * 0.4; }
+        if (k.y < minY) { k.y = minY; k.vy = Math.abs(k.vy) * 0.4; } if (k.y > maxY) { k.y = maxY; k.vy = -Math.abs(k.vy) * 0.4; }
+      }
+      k.x += k.vx; k.y += k.vy; k.r += k.vr;
+      if (Math.abs(k.vx) + Math.abs(k.vy) + Math.abs(k.vr) > 0.02 || (!k.free && Math.abs(k.home.x - k.x) + Math.abs(k.home.y - k.y) > 0.5)) moving = true;
+      paint(k, 1);
+    }
+    if (!moving) T.awake = false;
+  }
+  function paint(k, s) {
+    const v = 'translate3d(' + k.x.toFixed(1) + 'px,' + k.y.toFixed(1) + 'px,0) rotate(' + k.r.toFixed(2) + 'deg)' + (s !== 1 ? ' scale(' + s + ')' : '');
+    if (v !== k.last) { k.last = v; k.el.style.transform = v; }
+  }
+
+  /* ---------- prendere, spostare, lanciare ---------- */
+  function bind(T, k) {
+    const el = k.el;
+    let ox = 0, oy = 0, sx = 0, sy = 0, t0 = 0, timer = 0, moved = false, samples = [], pid = null;
+    const local = (e) => { const r = T.cloth.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    const lift = (e) => {
+      k.drag = true; moved = false; T.awake = true;
+      el.classList.add('lift'); el.style.zIndex = String(++z);
+      const q = local(e); ox = q.x - k.x; oy = q.y - k.y; samples = [[performance.now(), q.x, q.y]];
+      try { el.setPointerCapture(e.pointerId); } catch (err) { /* il dito è già andato */ }
+    };
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button) return;
+      sx = e.clientX; sy = e.clientY; t0 = performance.now(); moved = false; pid = e.pointerId;
+      if (e.pointerType === 'mouse') { lift(e); return; }
+      // col dito: tenere premuto solleva la foto, così lo scroll della pagina resta libero
+      clearTimeout(timer);
+      const ev = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
+      timer = setTimeout(() => { K.tick(); lift(ev); }, 280);
+    });
+    el.addEventListener('pointermove', (e) => {
+      if (!k.drag) { if (Math.hypot(e.clientX - sx, e.clientY - sy) > 8) clearTimeout(timer); return; }
+      const q = local(e);
+      if (!moved && Math.hypot(e.clientX - sx, e.clientY - sy) > 4) { moved = true; k.free = true; T.tidy.hidden = false; }
+      if (!moved) return;
+      const nx = q.x - ox, ny = q.y - oy;
+      k.r = k.rest + K.clamp((nx - k.x) * 0.5, -10, 10) * (K.reduced ? 0 : 1);
+      k.x = nx; k.y = ny;
+      samples.push([performance.now(), q.x, q.y]); if (samples.length > 5) samples.shift();
+    });
+    // mentre il dito tiene la foto, la pagina non scorre
+    el.addEventListener('touchmove', (e) => { if (k.drag && e.cancelable) e.preventDefault(); }, { passive: false });
+    const drop = () => {
+      clearTimeout(timer);
+      if (!k.drag) return;
+      k.drag = false; el.classList.remove('lift');
+      if (moved) {
+        const [ta, xa, ya] = samples[0], [tb, xb, yb] = samples[samples.length - 1], dt = Math.max(16, tb - ta);
+        k.vx = K.reduced ? 0 : K.clamp(((xb - xa) / dt) * 16, -40, 40); k.vy = K.reduced ? 0 : K.clamp(((yb - ya) / dt) * 16, -40, 40);
+        k.rest = k.r * 0.6 + (k.rnd(4) - 0.5) * 6;
+      }
+      el.__swallow = moved || performance.now() - t0 > 280; // un trascinamento (o una foto tenuta) non apre il piatto
+      T.awake = true;
+    };
+    el.addEventListener('pointerup', drop);
+    el.addEventListener('pointercancel', drop);
+    el.addEventListener('lostpointercapture', drop);
+    el.addEventListener('click', (e) => {
+      if (el.__swallow) { el.__swallow = false; e.preventDefault(); return; }
+      open(k);
+    });
+  }
+
+  /* ---------- il piatto aperto, che cresce dalla sua foto ---------- */
+  const look = $('[data-look]'), lookIn = look.querySelector('.look__in');
+  let opened = null;
+  function open(k) {
+    opened = k;
+    const p = k.p, img = $('[data-l-img]');
+    img.src = K.img(p.foto); img.alt = p.nome + ': ' + p.desc;
+    $('[data-l-cat]').textContent = p.cat.nome;
+    $('[data-l-name]').textContent = p.nome;
+    $('[data-l-desc]').textContent = p.desc;
+    $('[data-l-tags]').textContent = p.tag.map((t) => K.tagNames[t]).join(' · ');
+    $('[data-l-price]').textContent = K.euro(p.prezzo);
+    look.showModal(); look.scrollTop = 0;
+    if (K.reduced) return;
+    const from = k.el.getBoundingClientRect(), to = look.getBoundingClientRect();
+    const s = Math.max(0.08, from.width / to.width);
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2), dy = from.top + from.height / 2 - (to.top + to.height / 2);
+    look.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + k.r + 'deg) scale(' + s + ')', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { duration: 460, easing: 'cubic-bezier(.2,.7,.1,1)' });
+    lookIn.animate([{ opacity: 0 }, { opacity: 0, offset: 0.35 }, { opacity: 1 }], { duration: 460 });
+  }
+  function shut() {
+    if (!look.open) return;
+    const k = opened;
+    if (K.reduced || !k) { look.close(); return; }
+    const from = k.el.getBoundingClientRect(), to = look.getBoundingClientRect();
+    const s = Math.max(0.08, from.width / to.width);
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2), dy = from.top + from.height / 2 - (to.top + to.height / 2);
+    const a = look.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + k.r + 'deg) scale(' + s + ')', opacity: 0 }], { duration: 320, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+    a.onfinish = () => { look.close(); a.cancel(); };
+  }
+  look.addEventListener('cancel', (e) => { e.preventDefault(); shut(); });
+  look.addEventListener('click', (e) => { if (e.target === look) shut(); });
+  $('[data-l-x]').addEventListener('click', shut);
+  look.addEventListener('close', () => { if (opened) opened.el.focus({ preventScroll: true }); });
+
+  /* ---------- le foto arrivano sul tavolo quando la tovaglia entra nello schermo ---------- */
+  const deal = new IntersectionObserver((es) => {
+    for (const e of es) {
+      if (!e.isIntersecting) continue;
+      deal.unobserve(e.target);
+      const T = tables.find((t) => t.cloth === e.target);
+      // ogni foto arriva quando la sua immagine è pronta (o dopo un attimo, se la rete è lenta)
+      T.cards.forEach((k, i) => {
+        const img = k.el.querySelector('img'); img.loading = 'eager';
+        const ready = Promise.race([img.decode ? img.decode().catch(() => {}) : Promise.resolve(), new Promise((r) => setTimeout(r, 900))]);
+        ready.then(() => setTimeout(() => { k.dealt = true; k.el.classList.add('in'); T.awake = true; }, i * 90));
+      });
+    }
+  }, { rootMargin: '0px 0px -12% 0px' });
+  function place() {
+    tables.forEach((T) => {
+      layout(T);
+      T.cards.forEach((k) => {
+        if (k.dealt || k.free) return;
+        // prima di arrivare, la foto aspetta sopra il tavolo, girata
+        k.x = k.home.x + (k.rnd(5) - 0.5) * 120; k.y = k.home.y - 70 - k.rnd(6) * 50; k.r = k.home.r + (k.rnd(7) - 0.5) * 40;
+        paint(k, 1);
+      });
+      if (K.reduced) T.cards.forEach((k) => { k.x = k.home.x; k.y = k.home.y; k.r = k.home.r; k.el.classList.add('in'); paint(k, 1); });
+    });
+  }
+  place();
+  if (!K.reduced) tables.forEach((T) => deal.observe(T.cloth));
+  // rete di sicurezza: se l'osservatore non risponde, le foto arrivano comunque
+  setTimeout(() => tables.forEach((T) => { if (T.cloth.getBoundingClientRect().top < innerHeight) T.cards.forEach((k) => { if (!k.dealt) { k.dealt = true; k.el.classList.add('in'); T.awake = true; } }); }), 1600);
+  let rz = 0;
+  addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => tables.forEach(layout), 120); });
+  if (document.fonts) document.fonts.ready.then(() => tables.forEach(layout));
+  // i piatti ancora fuori schermo arrivano a posto anche in anteprima o senza scroll
+  if (K.preview) tables.forEach((T) => T.cards.forEach((k) => { k.dealt = true; k.el.classList.add('in'); }));
+
+  K.bar('tovaglia');
+  K.reveal();
+})();
+</script>
+</body>
+</html>

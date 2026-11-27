@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="it" data-root="..">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e0e">
+<title>Menù: stile Fuoco vivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/kit.css">
+<style>
+  /* FUOCO VIVO: dietro il menù arde una brace disegnata dalla GPU (shader WebGL2 + scintille).
+     Big Shoulders / Public Sans, grafite e arancio di sicurezza. */
+  :root {
+    --bg: #18191b; --surface: #222427; --ink: #eff0f1; --muted: #b4b6ba; --fire: #ff4a1f; --fire-ink: #18191b; --field: #eff0f1; --field-ink: #18191b;
+    --m: clamp(16px, 2.2vw, 32px); --gap: clamp(12px, 1.6vw, 24px);
+    --small: 0.9375rem; --body: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);
+    --lead: clamp(1.5rem, 1.1rem + 1vw, 2.25rem); --head: clamp(3.5rem, 1rem + 9.4vw, 10.5rem);
+    --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  body { background: var(--bg); color: var(--ink); font: 400 var(--body)/1.5 "Public Sans", system-ui, sans-serif; }
+  .bs { font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; letter-spacing: -0.005em; line-height: 0.88; text-transform: uppercase; }
+  .fire { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  main, .close { position: relative; z-index: 1; }
+
+  .top { min-height: calc(100svh - 56px); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: auto 1fr auto; column-gap: var(--gap); row-gap: 28px; padding: var(--m); }
+  .top__where { grid-column: 1 / span 7; font-size: var(--lead); }
+  .top h1 { grid-column: 1 / span 8; grid-row: 2; font-size: var(--head); align-self: end; }
+  .top__side { grid-column: 1 / span 5; grid-row: 3; display: grid; gap: 16px; justify-items: start; }
+  .top__pic { grid-column: 9 / span 4; grid-row: 1 / span 3; position: relative; overflow: hidden; min-height: 60svh; }
+  .top__pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .btn { display: inline-flex; align-items: center; min-height: 52px; padding: 0 24px; background: var(--fire); color: var(--fire-ink); font-weight: 600; text-decoration: none; transition: transform 0.2s var(--ease), background-color 0.2s; }
+  @media (hover: hover) and (pointer: fine) { .btn:hover { background: #ff6a44; } }
+  .btn:active { transform: scale(0.96); }
+
+  .cat { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); margin-top: clamp(96px, 14svh, 180px); padding: clamp(40px, 6svh, 72px) var(--m); background: var(--surface); }
+  .cat__head { grid-column: 1 / span 3; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+  .cat h2 { font-size: clamp(3rem, 1rem + 5vw, 6.5rem); color: var(--fire); }
+  .cat__head p { font-size: var(--lead); font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; text-transform: uppercase; line-height: 1; }
+  .cat ul { grid-column: 5 / span 8; display: grid; gap: 40px; }
+  .dish { display: grid; grid-template-columns: 168px 1fr auto; column-gap: 20px; align-items: start; transition: transform 0.3s var(--ease); }
+  @media (hover: hover) and (pointer: fine) { .dish:hover { transform: translateX(6px); } }
+  .dish img { width: 168px; aspect-ratio: 4 / 3; object-fit: cover; }
+  .dish h3 { font-size: var(--lead); font-family: "Big Shoulders", Impact, sans-serif; font-weight: 800; text-transform: uppercase; line-height: 0.95; }
+  .dish p { margin-top: 6px; max-width: 46ch; }
+  .dish__tags { color: var(--muted); font-size: var(--small); }
+  .dish__price { font: 800 var(--lead)/1 "Big Shoulders", Impact, sans-serif; color: var(--fire); font-variant-numeric: tabular-nums; }
+
+  .close { margin-top: clamp(120px, 16svh, 200px); background: var(--field); color: var(--field-ink); padding: clamp(64px, 10svh, 120px) var(--m) var(--m); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 28px; }
+  .close__name { grid-column: 1 / -1; font-size: clamp(3.5rem, 1rem + 11vw, 13rem); }
+  .close p:nth-of-type(2) { grid-column: 1 / span 4; font: 800 var(--lead)/1 "Big Shoulders", Impact, sans-serif; text-transform: uppercase; }
+  .close p:nth-of-type(3) { grid-column: 7 / span 6; max-width: 52ch; }
+
+  @media (max-width: 1100px) { .top h1 { grid-column: 1 / span 8; } .top__side { grid-column: 1 / span 8; } .cat__head { grid-column: 1 / -1; margin-bottom: 28px; } .cat ul { grid-column: 1 / -1; } }
+  @media (max-width: 760px) {
+    .top { grid-template-rows: auto; }
+    .top h1, .top__side, .top__where { grid-row: auto; grid-column: 1 / -1; }
+    .top__pic { grid-column: 1 / -1; grid-row: auto; min-height: 0; aspect-ratio: 4 / 3; }
+    /* righe compatte: foto piccola a sinistra, così il menù si scorre con il pollice senza perdere il filo */
+    .cat { margin-top: 72px; }
+    .cat__head { gap: 10px; margin-bottom: 24px; }
+    .cat ul { gap: 28px; }
+    .dish { grid-template-columns: 104px 1fr; grid-template-areas: "pic body" "pic price"; column-gap: 14px; row-gap: 8px; }
+    .dish img { grid-area: pic; width: 104px; aspect-ratio: 1; }
+    .dish > div { grid-area: body; }
+    .dish__price { grid-area: price; }
+    .close p:nth-of-type(2), .close p:nth-of-type(3) { grid-column: 1 / -1; }
+    .close { padding-bottom: max(var(--m), env(safe-area-inset-bottom, 0px)); }
+  }
+  @media (prefers-reduced-motion: reduce) { .dish, .btn { transition: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#antipasti">Salta al menù</a>
+<canvas class="fire" data-fire aria-hidden="true"></canvas>
+<main>
+  <header class="top">
+    <p class="top__where bs" data-where data-rise></p>
+    <h1 class="bs" data-name data-rise></h1>
+    <div class="top__side">
+      <p data-rise data-blow>Brace di legna di quercia, accesa ogni giorno alle cinque. Il fuoco qui dietro è disegnato in tempo reale: avvicina il puntatore.</p>
+      <a class="btn" href="#antipasti" data-rise>Al menù</a>
+    </div>
+    <figure class="top__pic" data-rise><img src="../assets/tagliata.jpg" alt="Tagliata di manzo con rucola e scaglie di grana" width="1024" height="768"></figure>
+  </header>
+  <div data-cats></div>
+</main>
+<footer class="close">
+  <p class="close__name bs" data-name></p>
+  <p data-cover></p>
+  <p data-note></p>
+</footer>
+<noscript><p style="padding:24px">Questo menù si compone con JavaScript.</p></noscript>
+<script src="../js/menu.js"></script>
+<script src="../api/menu.js?stile=brace"></script>
+<script src="../js/kit.js"></script>
+<script>
+(function () {
+  'use strict';
+  const M = window.MENU, h = K.h, $ = (s) => document.querySelector(s);
+  document.querySelectorAll('[data-name]').forEach((e) => (e.textContent = M.ristorante));
+  $('[data-where]').textContent = M.luogo + ' · ' + M.stagione;
+  $('[data-cover]').textContent = 'Coperto ' + K.euro2(M.coperto);
+  $('[data-note]').textContent = M.nota;
+  if (K.coarse) $('[data-blow]').textContent = 'Brace di legna di quercia, accesa ogni giorno alle cinque. Il fuoco qui dietro è disegnato in tempo reale: tocca lo schermo e si ravviva sotto il dito.';
+  const host = $('[data-cats]');
+  M.categorie.forEach((c) => host.append(h('section', { class: 'cat', id: c.id, 'aria-labelledby': 'h-' + c.id },
+    h('div', { class: 'cat__head' }, h('h2', { class: 'bs', id: 'h-' + c.id, 'data-rise': true, text: c.nome }), h('p', { 'data-rise': true, text: c.breve })),
+    h('ul', {}, c.piatti.map((p) => h('li', { class: 'dish' }, K.photo(p, ''),
+      h('div', { 'data-rise': true }, h('h3', { text: p.nome }), h('p', { text: p.desc + (p.tag.length ? ' ' + p.tag.map((t) => K.tagNames[t]).join(' · ') + '.' : '') })),
+      h('p', { class: 'dish__price', text: K.euro(p.prezzo) })))))));
+
+  /* ---------- la brace: due programmi WebGL2 ---------- */
+  const canvas = $('[data-fire]');
+  const gl = canvas.getContext('webgl2', { antialias: false, alpha: false });
+  if (gl) {
+    const VS = '#version 300 es\nvoid main(){ vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2)); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }';
+    const FS = `#version 300 es
+    precision highp float;
+    uniform vec2 uRes, uPtr; uniform float uTime, uHeat;
+    out vec4 o;
+    vec2 hh(vec2 p){ p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return -1.0 + 2.0 * fract(sin(p) * 43758.5453); }
+    float n(vec2 p){ vec2 i = floor(p), f = fract(p), u = f * f * (3.0 - 2.0 * f);
+      return mix(mix(dot(hh(i), f), dot(hh(i + vec2(1, 0)), f - vec2(1, 0)), u.x), mix(dot(hh(i + vec2(0, 1)), f - vec2(0, 1)), dot(hh(i + vec2(1, 1)), f - vec2(1, 1)), u.x), u.y); }
+    float fbm(vec2 p){ float a = 0.5, s = 0.0; for (int i = 0; i < 5; i++){ s += a * n(p); p = mat2(1.6, 1.2, -1.2, 1.6) * p; a *= 0.5; } return s; }
+    vec3 ramp(float t){ t = clamp(t, 0.0, 1.0);
+      vec3 c = mix(vec3(0.03, 0.02, 0.02), vec3(0.32, 0.04, 0.01), smoothstep(0.0, 0.35, t));
+      c = mix(c, vec3(1.0, 0.29, 0.12), smoothstep(0.3, 0.7, t));
+      return mix(c, vec3(1.0, 0.82, 0.48), smoothstep(0.75, 1.0, t)); }
+    void main(){
+      vec2 uv = gl_FragCoord.xy / uRes.y;
+      float t = uTime;
+      // carbone: un rumore a creste, le crepe sono dove brucia
+      vec2 q = uv * 3.2 + vec2(0.0, -t * 0.05);
+      float w = fbm(q + fbm(q * 0.7 + t * 0.03) * 1.4);
+      float crack = pow(1.0 - abs(w * 2.2), 7.0);
+      float flicker = 0.75 + 0.25 * n(uv * 6.0 + vec2(t * 0.8, -t * 1.6));
+      float base = 1.0 - gl_FragCoord.y / uRes.y;
+      float heat = crack * flicker * (0.35 + 0.9 * base * base) * uHeat;
+      // il puntatore soffia sulla brace
+      vec2 d = (gl_FragCoord.xy - uPtr) / uRes.y;
+      heat += crack * 1.4 * exp(-dot(d, d) * 18.0) * uHeat;
+      vec3 col = ramp(heat) + vec3(0.025, 0.026, 0.028) * (0.6 + 0.4 * fbm(uv * 14.0));
+      // in alto si spegne, per leggere
+      col *= mix(0.35, 1.0, smoothstep(0.85, 0.15, gl_FragCoord.y / uRes.y));
+      o = vec4(col, 1.0);
+    }`;
+    const SVS = `#version 300 es
+    uniform vec2 uRes; uniform float uTime;
+    out float vA;
+    float r(float x){ return fract(sin(x * 91.3458) * 47453.5453); }
+    void main(){
+      float i = float(gl_VertexID);
+      float speed = 0.05 + 0.12 * r(i + 1.0), life = fract(r(i + 2.0) + uTime * speed);
+      float x = r(i + 3.0) * 2.0 - 1.0 + sin(uTime * (0.6 + r(i)) + i) * 0.04 * life;
+      float y = -1.05 + life * 2.4;
+      gl_Position = vec4(x, y, 0.0, 1.0);
+      gl_PointSize = (1.5 + 3.0 * r(i + 4.0)) * (uRes.y / 900.0) * (1.0 - life * 0.6);
+      vA = (1.0 - life) * smoothstep(0.0, 0.08, life);
+    }`;
+    const SFS = '#version 300 es\nprecision mediump float; in float vA; out vec4 o; void main(){ vec2 c = gl_PointCoord - 0.5; float d = dot(c, c); if (d > 0.25) discard; o = vec4(vec3(1.0, 0.45, 0.15) * vA * (1.0 - d * 4.0), 1.0); }';
+    const prog = (vs, fs) => { const p = gl.createProgram(); [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]].forEach(([t, s]) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(sh)); gl.attachShader(p, sh); }); gl.linkProgram(p); return p; };
+    const P = prog(VS, FS), S = prog(SVS, SFS);
+    const U = (p, n) => gl.getUniformLocation(p, n);
+    const vao = gl.createVertexArray();
+    let time = 4, heat = 0, ptr = { x: innerWidth * 0.6, y: innerHeight * 0.7 };
+    K.watch(canvas);
+    K.add(null, (f) => {
+      const scale = Math.min(devicePixelRatio || 1, 1.5) * 0.6;
+      const w = Math.round(innerWidth * scale), hgt = Math.round(innerHeight * scale);
+      if (canvas.width !== w || canvas.height !== hgt) { canvas.width = w; canvas.height = hgt; }
+      if (!K.reduced) time += f.dt;
+      heat += (1 - heat) * 0.02;
+      const target = K.recent(3000) ? K.pointer : { x: innerWidth * (0.5 + 0.3 * Math.sin(time * 0.3)), y: innerHeight * 0.75 };
+      ptr.x += (target.x - ptr.x) * 0.08; ptr.y += (target.y - ptr.y) * 0.08;
+      gl.viewport(0, 0, w, hgt);
+      gl.bindVertexArray(vao);
+      gl.useProgram(P);
+      gl.uniform2f(U(P, 'uRes'), w, hgt); gl.uniform1f(U(P, 'uTime'), time); gl.uniform1f(U(P, 'uHeat'), heat);
+      gl.uniform2f(U(P, 'uPtr'), ptr.x * scale, (innerHeight - ptr.y) * scale);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+      gl.useProgram(S);
+      gl.uniform2f(U(S, 'uRes'), w, hgt); gl.uniform1f(U(S, 'uTime'), time);
+      gl.drawArrays(gl.POINTS, 0, K.isPhone() ? 260 : 700);
+      gl.disable(gl.BLEND);
+    });
+  }
+  K.bar('brace');
+  K.reveal();
+})();
+</script>
+</body>
+</html>
